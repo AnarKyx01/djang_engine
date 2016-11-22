@@ -11,6 +11,7 @@ pip3 install --upgrade pip
 pip3 install django
 
 ### Postgresql Requirements
+sudo su
 apt-get install postgresql postgresql-contrib
 pip3 install psycopg2
 ```
