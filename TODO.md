@@ -1,4 +1,5 @@
-### Functions
-
-- [ ] Restrict views based on role
---[X] Only users can view levels and submit questions
+### Role based restrictions
+- [x] Create and implement player view restriction
+"Added function is_player, utilize @user_passes_test"
+- [ ] Create and implement superuser view restrictions
+- [ ] Create manager 
