@@ -5,10 +5,10 @@ Just a simple learning django exercise, much work to be done.
 ```
 sudo su
 apt-get update
-apt-get install python-pip python-dev libpq-dev postgresql postgresql-contrib
-pip install --upgrade pip
-pip install psycopg2
-pip install django
+apt-get install python3-pip python3-dev libpq-dev postgresql postgresql-contrib
+pip3 install --upgrade pip
+pip3 install psycopg2
+pip3 install django
 ```
 
 Dependencies: 
