@@ -9,7 +9,7 @@ from django.core.validators import int_list_validator
 ''' User Models '''
 
 class Player(models.Model):
-	
+
 	user = models.OneToOneField(User, on_delete=models.CASCADE)
 	handle = models.CharField(max_length=25)
 	score = models.IntegerField(default=0)
@@ -17,10 +17,10 @@ class Player(models.Model):
 	quizLevels = models.CharField(default="0", validators=[int_list_validator], max_length=50)
 
 	def getCtfLevels(self):
-		return filter(None, self.ctfLevels.split(','))
+		return list(filter(None, self.ctfLevels.split(',')))
 
 	def getQuizLevels(self):
-		return filter(None, self.quizLevels.split(','))
+		return list(filter(None, self.quizLevels.split(',')))
 
 	def getFlags(self):
 		return FlagFind.objects.filter(player = self)
@@ -53,7 +53,7 @@ class QuizLevel(models.Model):
 	unlock_key = models.CharField(max_length=32, unique=True)
 
 	def getQuestionCount(self):
-		return len(Question.objects.filter(level=self))
+		return Question.objects.filter(level=self).count()
 
 	def getQuestions(self):
 		Question.objects.filter(level=self)
@@ -62,7 +62,7 @@ class QuizLevel(models.Model):
 		count = self.getQuestionCount()
 		if count == 0:
 			return 0
-		player_count = len(player.getQuestions(self))
+		player_count = player.getQuestions(self).count()
 		return (float(player_count)/count)*100
 
 	def getUnanswered(self, player):
@@ -106,7 +106,7 @@ class CtfLevel(models.Model):
 	unlock_key = models.CharField(max_length=32, unique=True)
 
 	def getFlagCount(self):
-		return len(Flag.objects.filter(level=self))
+		return Flag.objects.filter(level=self).count()
 
 	def getFlags(self):
 		Flag.objects.filter(level=self)
@@ -115,7 +115,7 @@ class CtfLevel(models.Model):
 		count = self.getFlagCount()
 		if count == 0:
 			return 0
-		player_count = len(player.getFlags(self))
+		player_count = player.getFlags(self).count()
 		return (float(player_count)/count)*100
 
 	def __str__(self):
@@ -141,5 +141,3 @@ class FlagFind(models.Model):
 
 	def __str__(self):
 		return "%s found a flag on %s" % (self.player, self.found_on)
-
-

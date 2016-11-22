@@ -55,7 +55,7 @@ def quizLevel(request, level):
 		questions = levelObj.getUnanswered(request.user.player)
 		progress = levelObj.getProgressPercent(request.user.player)
 		solved = request.user.player.getQuestions(levelObj)
-		print progress
+		print (solved)
 		return render(request, 'engine/quiz_level.html', { 'questions':questions, 'solved':solved, 'level':levelObj, 'progress':progress })
 	else:
 		messages.warning(request, 'nooope')
@@ -65,12 +65,14 @@ def quizLevel(request, level):
 def levels(request):
 	CtfLevels = request.user.player.getCtfLevels()
 	QuizLevels = request.user.player.getQuizLevels()
-	if len(CtfLevels) >= 1 or len(QuizLevels) >= 1:
-		if len(CtfLevels) >= 1:
+	CtfLevels_count = len(request.user.player.getCtfLevels())
+	QuizLevels_count = len(request.user.player.getQuizLevels())
+	if CtfLevels_count >= 1 or QuizLevels_count >= 1:
+		if CtfLevels_count >= 1:
 			CtfLevels_query = CtfLevel.objects.filter(number__in=CtfLevels)
 		else:
 			CtfLevels_query = None
-		if len(QuizLevels) >= 1:
+		if QuizLevels_count >= 1:
 			Quizlevels_query = QuizLevel.objects.filter(number__in=QuizLevels)
 		else:
 			Quizlevels_query = None
@@ -154,8 +156,6 @@ def levelUnlock(request):
 			return render(request, 'engine/unlock.html')
 		else:
 			player = request.user.player
-			print unlocked.number
-			print player.levels.split(',')
 			if str(unlocked.number) in player.levels.split(','):
 				messages.warning(request, 'you already unlocked that level...')
 				return render(request, 'engine/unlock.html')
@@ -170,17 +170,17 @@ def levelUnlock(request):
 @user_passes_test(is_manager)
 def managerConsole(request):
 	players = Player.objects.all()
-	player_count = len(players)
+	player_count = players.count()
 	levels = CtfLevel.objects.all()
-	level_count = len(CtfLevel.objects.all())
+	level_count = CtfLevel.objects.all().count()
 	level_players = []
 	level_progress = []
 	player_tmp = Player.objects.all()
 
 	for i in range(0, level_count, 1):
 		player_tmp = player_tmp.filter(ctfLevels__contains=str(i))
-		level_players.append(len(player_tmp))
-		level_progress.append(float((len(player_tmp))/player_count)*100)
+		level_players.append(player_tmp.count())
+		level_progress.append((float(player_tmp.count())/player_count)*100)
 
 	return render(request, 'engine/managerConsole.html', {'level_progress': level_progress, 'level_players':level_players, 'player_count':player_count, 'levels': levels})
 
