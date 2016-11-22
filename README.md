@@ -2,7 +2,7 @@
 
 Just a simple learning django exercise, much work to be done.
 
-```
+```bash
 ### Django Requirements
 sudo su
 apt-get update
