@@ -1,6 +1,6 @@
 # djang_engine
 
-Just a simple learning django exercise, much work to be done.
+This is a quiz/ctf engine to support continuous training, very early stages of development
 
 ```bash
 ### Django Requirements
