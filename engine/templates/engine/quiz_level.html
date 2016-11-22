@@ -19,15 +19,15 @@
 				        {% for question in questions %}
 				        	<tr class='clickable-row'>
 				         	<td>{{question.question_text}}</td>
-							<td><form action="submit" method="post" id='answer_submit'>
-							{% csrf_token %}
-							<div class="input-group">
-								<input type="text" class="form-control" name="answer_submission" placeholder="Insert Answer Here">
-								<input type="hidden" name="question_id" value="{{ question.id }}" />
-								<span class="input-group-btn"><input type="submit" class="btn btn-primary" value="submit" /></span>
-							</div>
-							</form>
-							</td>
+									<td><form action="submit" method="post" id='answer_submit'>
+									{% csrf_token %}
+									<div class="input-group">
+										<input type="text" class="form-control" name="answer_submission" placeholder="Insert Answer Here">
+										<input type="hidden" name="question_id" value="{{ question.id }}" />
+										<span class="input-group-btn"><input type="submit" class="btn btn-primary" value="submit" /></span>
+									</div>
+									</form>
+									</td>
 				         	</tr>
 				        {% endfor %}
 				        </tbody>
@@ -35,7 +35,8 @@
 			    </div>
 			</div>
 		</div>
-		{% elif solved %}
+		{% endif %}
+		{% if solved %}
 		<div class="col-md-12">
 			<div class="panel panel-success">
 				<div class="panel-heading">

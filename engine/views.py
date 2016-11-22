@@ -56,6 +56,7 @@ def quizLevel(request, level):
 		progress = levelObj.getProgressPercent(request.user.player)
 		solved = request.user.player.getQuestions(levelObj)
 		print (solved)
+		print (questions)
 		return render(request, 'engine/quiz_level.html', { 'questions':questions, 'solved':solved, 'level':levelObj, 'progress':progress })
 	else:
 		messages.warning(request, 'nooope')
@@ -83,9 +84,9 @@ def levels(request):
 
 @user_passes_test(is_player)
 def flagSubmit(request, level):
-	levelObj = Level.objects.get(number = level)
+	levelObj = CtfLevel.objects.get(number = level)
 	flags = Flag.objects.filter(level = levelObj)
-	progress = levelObj.getProgress(request.user.player)
+	progress = levelObj.getProgressPercent(request.user.player)
 	if request.POST['notes'] == '':
 		messages.warning(request, 'no notes = no points')
 		return render(request, 'engine/ctf_level.html', { 'flags':flags, 'level':levelObj, 'progress':progress })
@@ -103,7 +104,7 @@ def flagSubmit(request, level):
 			u.score += flag_submit.value
 			u.save()
 			messages.success(request, 'you rock, l33t h4x br0')
-			return HttpResponseRedirect(reverse('engine:level', args=(level)))
+			return HttpResponseRedirect(reverse('engine:ctfLevel', args=(level)))
 		else:
 			messages.warning(request, 'Again? really....')
 			return render(request, 'engine/ctf_level.html', { 'flags':flags, 'level':levelObj, 'progress':progress })
