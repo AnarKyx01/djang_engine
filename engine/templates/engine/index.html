@@ -1,0 +1,30 @@
+{% extends 'engine/base.html' %}
+
+{% block content %}
+
+	<div class="row">
+		<div class="col-md-8">
+		<h3>Welcome to the Engine</h3>
+		<div class="well well-sm">
+			<p>This is a paragraph where we can put the 'default/welcome' info</p>
+		</div>
+		</div>
+		<div class="col-md-4">
+			<div class="panel panel-default">
+				<div class="panel-heading"><h3 class="panel-title text-center">Recent Finds</h3></div>
+				<div class="panel-body">
+				{% if latest_finds_list %}
+					<ul>
+						{% for finds in latest_finds_list %}
+							<p>{{ finds.player }} on {{ finds.found_on | date:"j M Y" }} at {{finds.found_on | date:"Hi"}} </p>
+						{% endfor %}
+					</ul>
+				{% else %}
+					<p>No flags have been found.</p>
+				{% endif %}
+				</div>
+		</div>
+	</div>
+
+
+{% endblock %}

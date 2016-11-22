@@ -1,0 +1,29 @@
+{% extends 'engine/base.html' %}
+
+{% block content %}
+		<h1>level unlock</h1>
+		<div class="row">
+		<div class="col-md-8 col-md-offset-2">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h3 class="panel-title">Machine Revert</h3>
+				</div>
+				<div class="panel-body">
+					<form action="" method="post" id='key'>
+					{% csrf_token %}
+					<div class="input-group">
+						<span class="input-group-addon" id="flag"><span class="glyphicon glyphicon-flag" aria-hidden="true"></span></span>
+						<input type="text" class="form-control" name="key" placeholder="Insert Key Here">
+					</div>
+					<br />
+					<input type="submit" class="btn btn-lg btn-primary" value="submit" />
+					</form>
+				</div>
+			</div>
+		</div>
+		</div>
+
+	{% if user.is_authenticated %}
+		{{ user.id }}
+	{% endif %}
+{% endblock %}

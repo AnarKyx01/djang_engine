@@ -1,0 +1,20 @@
+{% extends 'engine/base.html' %}
+
+{% block content %}
+	<h1>{{player}}</h1>
+	{% if user.is_authenticated %}
+		<h3> score = {{ score }} </h3>
+		<hr />
+		{% if user.player == player || user.manager %}
+			{% if flags %}
+			<ul>
+				{% for flag in flags %}
+					<strong>{{ flag }}</strong>
+					<p> {{ flag.notes }} </p>
+					<hr />
+				{% endfor %}
+			</ul>
+			{% endif %}
+		{% endif %}
+	{% endif %}
+{% endblock %}

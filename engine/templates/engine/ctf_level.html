@@ -1,0 +1,61 @@
+{% extends 'engine/base.html' %}
+
+{% block content %}
+	{% if flags %}
+		<h1>level {{ level.name }}</h1>
+		<div class="progress">
+			<div class="progress-bar" role="progressbar" aria-valuenow="{{ progress }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ progress }}%;">
+				{{ progress|floatformat }}%
+			</div>
+		</div>
+		<div class="row">
+		<div class="col-md-4">
+			<div class="panel panel-warning">
+				<div class="panel-heading">
+					<h3 class="panel-title">Machine Revert</h3>
+				</div>
+				<div class="panel-body">
+					<form action="revert" method="post">
+					{% csrf_token %}
+					<select name="revert">
+						{% for flag in flags %}
+							<option value="{{ flag.pk }}">{{ flag.name }}</option>
+						{% endfor %}
+					</select>
+					<input type="submit" value="revert" />
+					</form>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-8">
+			<div class="panel panel-success">
+				<div class="panel-heading">
+					<h3 class="panel-title">Flag Submit</h3>
+				</div>
+				<div class="panel-body text-center">
+					<form action="submit" method="post" id='flag_submit'>
+					{% csrf_token %}
+					<div class="input-group">
+						<span class="input-group-addon" id="flag"><span class="glyphicon glyphicon-flag" aria-hidden="true"></span></span>
+						<input type="text" class="form-control" name="flag_submission" placeholder="Insert Flag Here">
+					</div>
+					<br />
+					<div class="input-group">
+						<span class="input-group-addon" id="flag"><span class="glyphicon glyphicon-paste" aria-hidden="true"></span></span>
+						<textarea rows="5" class="form-control" name="notes" form="flag_submit" placeholder="Enter notes here"></textarea>
+					</div>
+					<br />
+					<input type="submit" class="btn btn-lg btn-primary" value="submit" />
+					</form>
+				</div>
+			</div>
+		</div>
+		</div>
+	{% else %}
+		<p>Nothing to see here.</p>
+	{% endif %}
+
+	{% if user.is_authenticated %}
+		{{ user.id }}
+	{% endif %}
+{% endblock %}
