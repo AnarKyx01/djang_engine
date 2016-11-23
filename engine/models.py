@@ -43,6 +43,15 @@ class Player(models.Model):
 		return self.handle
 
 
+class Manager(models.Model):
+
+	user = models.OneToOneField(User, on_delete=models.CASCADE)
+	handle = models.CharField(max_length=25)
+
+	def __str__(self):
+		return self.handle
+
+
 ''' Quiz Level Models '''
 
 class QuizLevel(models.Model):

@@ -11,7 +11,7 @@ from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 
 
-from .models import Player, FlagFind, Flag, CtfLevel, QuestionGet, Question, QuizLevel
+from .models import Player, FlagFind, Flag, CtfLevel, QuestionGet, Question, QuizLevel, Manager
 # Create your views here.
 
 def is_player(user):
@@ -19,9 +19,12 @@ def is_player(user):
 		return user.player is not None
 	except ObjectDoesNotExist:
 		return False
-''' Need to write script to setup manager group '''
+
 def is_manager(user):
-	return user.groups.filter(name="Manager").exists()
+	try:
+		return user.manager is not None
+	except ObjectDoesNotExist:
+		return False
 
 class indexView(generic.ListView):
 	template_name='engine/index.html'
@@ -115,7 +118,6 @@ def questionSubmit(request, level):
 	questions = levelObj.getUnanswered(request.user.player)
 	progress = levelObj.getProgressPercent(request.user.player)
 	solved = request.user.player.getQuestions(levelObj)
-
 	progress = levelObj.getProgressPercent(request.user.player)
 
 	try:
@@ -134,7 +136,7 @@ def questionSubmit(request, level):
 				QuestionGet(question = question_submit, player = request.user.player).save()
 				u = request.user.player
 				u.score += question_submit.value
-				if progress >= 75:
+				if levelObj.getProgressPercent(request.user.player) >= 75:
 					if '0' not in request.user.player.getCtfLevels():
 						u.ctfLevels = '0'
 				u.save()
@@ -182,6 +184,8 @@ def managerConsole(request):
 		player_tmp = player_tmp.filter(ctfLevels__contains=str(i))
 		level_players.append(player_tmp.count())
 		level_progress.append((float(player_tmp.count())/player_count)*100)
+
+	level_progress = zip(levels, level_players, level_progress)
 
 	return render(request, 'engine/managerConsole.html', {'level_progress': level_progress, 'level_players':level_players, 'player_count':player_count, 'levels': levels})
 
