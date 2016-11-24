@@ -1,0 +1,70 @@
+{% extends 'engine/base.html' %}
+
+{% block content %}
+<h1>{{ level_stats.name }}</h1>
+<div class="row">
+	<div class="col-md-12">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h3 class="panel-title">Level Statistics</h3>
+			</div>
+			<div class="panel-body">
+				<div class="row text-center">
+					<div class="col-md-4">
+						<p>{{ level_stats.level_player_count }} Players have reached this level</p>
+					</div>
+					<div class="col-md-8">
+						<div class="progress">
+							<div class="progress-bar progress-bar" style="width: {{ level_stats.level_player_percent }}%">{{ level_stats.level_player_count }}/{{ level_stats.player_count }} Players</div>
+						</div>
+					</div>
+				</div>
+				<div class="row text-center">
+					<div class="col-md-4">
+						<p>{{ level_stats.players_completed }} Players have completed this level</p>
+					</div>
+					<div class="col-md-8">
+						<div class="progress">
+							<div class="progress-bar progress-bar" style="width: {{ level_stats.player_completed_percent }}%">{{ level_stats.players_completed }}/{{ level_stats.player_count }} Players</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="row">
+	<div class="col-md-12">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h3 class="panel-title">Flag Statistics</h3>
+			</div>
+			<div class="panel-body">
+				{% for flag, flag_find_count, flag_find_percent in flag_stats %}
+				<div class="row text-center">
+					<div class="col-md-3">
+						<p>{{flag}}</p>
+					</div>
+					<div class="col-md-3">
+						<p>Found {{ flag_find_count }}</p>
+					</div>
+					<div class="col-md-6">
+						<div class="progress">
+							<div class="progress-bar progress-bar" style="width: {{ flag_find_percent }}%">{{ flag_find_percent }}%</div>
+						</div>
+					</div>
+				</div>
+				{% endfor %}
+				<div class="row">
+					<div class="col-md-6">
+						<p>First Flag Find: {{ level_stats.first_find.player }} on {{ level_stats.first_find.found_on | date:"j M Y" }} at {{level_stats.first_find.found_on | date:"Hi"}}</p>
+					</div>
+					<div class="col-md-6">
+						<p>Most Recent Flag Find: {{ level_stats.most_recent_find.player }} on {{ level_stats.most_recent_find.found_on | date:"j M Y" }} at {{level_stats.most_recent_find.found_on | date:"Hi"}}</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}

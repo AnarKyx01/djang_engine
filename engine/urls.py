@@ -19,6 +19,7 @@ urlpatterns = [
 	#url(r'^quiz/(?P<level>[0-9]+)/submit$', views.flagSubmit, name='flagSubmit'),
 	url(r'^login/$', auth_views.login, {'template_name': 'engine/login.html'}, name='login'),
 	url(r'^logout/$', auth_views.logout, name='logout'),
-	url(r'^manage/$', views.managerConsole, name='managerConsole')
+	url(r'^manage/$', views.managerConsole, name='managerConsole'),
+	url(r'^stats/level/(?P<level>[0-9]+)/$', views.levelStats, name='levelStats'),
 	#url('^', include('django.contrib.auth.urls')),
 ]
