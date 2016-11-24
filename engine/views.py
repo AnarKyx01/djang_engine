@@ -190,6 +190,62 @@ def managerConsole(request):
 	return render(request, 'engine/manager_console.html', {'level_progress': level_progress, 'level_players':level_players, 'player_count':player_count, 'levels': levels})
 
 @user_passes_test(is_manager)
-def playerStats(request, player):
+def playerStats(request):
 
 	return render(request, 'engine/playerStats.html')
+
+@user_passes_test(is_manager)
+def levelStats(request, level):
+	player_count = Player.objects.all().count()
+	level = CtfLevel.objects.get(number = level)
+	level_players = Player.objects.filter(ctfLevels__icontains = level.number)
+	level_player_count = Player.objects.filter(ctfLevels__icontains = level.number).count()
+	if player_count != 0:
+		level_player_percent = (float(level_player_count)/player_count)*100
+	else:
+		level_player_percent = 0
+	players_completed = 0
+	for player in level_players:
+		player_flag_count = player.getFlags(level).count()
+		level_flag_count = level.getFlagCount()
+		if player_flag_count == level_flag_count:
+			players_completed += 1
+
+	if level_player_count != 0:
+		player_completed_percent = (float(players_completed)/level_player_count)*100
+	else:
+		player_completed_percent = 0
+
+	#level_flags = level.getFlags()
+	level_flags = Flag.objects.filter(level = level)
+	level_flag_finds = FlagFind.objects.filter(flag__in = level_flags)
+	if level_flag_finds:
+		first_find = FlagFind.objects.filter(flag__in = level_flags).reverse()[0]
+		most_recent_find = FlagFind.objects.filter(flag__in = level_flags)[0]
+	else:
+		first_find = "none"
+		most_recent_find = "none"
+
+	level_stats = {
+					"level":level,
+					"player_count":player_count,
+					"level_player_count":level_player_count,
+					"level_player_percent":level_player_percent,
+					"players_completed":players_completed,
+					"player_completed_percent":player_completed_percent,
+					"first_find":first_find,
+					"most_recent_find":most_recent_find,
+				}
+
+	level_flag_find_count = []
+	level_flag_find_percent = []
+	for flag in level_flags:
+		level_flag_find_count.append(FlagFind.objects.filter(flag = flag).count())
+		print (level_player_count)
+		if level_player_count != 0:
+			level_flag_find_percent.append((level_flag_find_count[-1]/float(level_player_count))*100)
+		else:
+			player_completed_percent = level_flag_find_percent.append(0)
+	flag_stats = zip(level_flags, level_flag_find_count, level_flag_find_percent)
+
+	return render(request, 'engine/level_stats.html', { 'level_stats':level_stats, 'flag_stats':flag_stats })
