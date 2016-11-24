@@ -187,7 +187,7 @@ def managerConsole(request):
 
 	level_progress = zip(levels, level_players, level_progress)
 
-	return render(request, 'engine/managerConsole.html', {'level_progress': level_progress, 'level_players':level_players, 'player_count':player_count, 'levels': levels})
+	return render(request, 'engine/manager_console.html', {'level_progress': level_progress, 'level_players':level_players, 'player_count':player_count, 'levels': levels})
 
 @user_passes_test(is_manager)
 def playerStats(request, player):
