@@ -195,7 +195,7 @@ def playerStats(request):
 	return render(request, 'engine/playerStats.html')
 
 @user_passes_test(is_manager)
-def levelStats(request, level):
+def ctfLevelStats(request, level):
 	player_count = Player.objects.all().count()
 	level = CtfLevel.objects.get(number = level)
 	level_players = Player.objects.filter(ctfLevels__icontains = level.number)
@@ -220,8 +220,8 @@ def levelStats(request, level):
 	level_flags = Flag.objects.filter(level = level)
 	level_flag_finds = FlagFind.objects.filter(flag__in = level_flags)
 	if level_flag_finds:
-		first_find = FlagFind.objects.filter(flag__in = level_flags).reverse()[0]
-		most_recent_find = FlagFind.objects.filter(flag__in = level_flags)[0]
+		first_find = FlagFind.objects.filter(flag__in = level_flags).order_by('found_on')[0]
+		most_recent_find = FlagFind.objects.filter(flag__in = level_flags).order_by('-found_on')[0]
 	else:
 		first_find = "none"
 		most_recent_find = "none"
