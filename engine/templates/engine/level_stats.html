@@ -68,14 +68,18 @@
 			</div>
 		</div>
 	</div>
+
+	print ({{level_stats.month_finds}})
+	print ({{level_stats.month_finds_count}})
+	print ({{level_stats.day_finds}})
+	print ({{level_stats.day_finds_count}})
 </div>
 <script>
-var month_names = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
+{% autoescape off %}
 	new Chartist.Bar('#monthly_chart', {
-		labels: [month_names[{{ level_stats.month_finds.0 }}], month_names[{{ level_stats.month_finds.1 }}], month_names[{{ level_stats.month_finds.2 }}], month_names[{{ level_stats.month_finds.3 }}], month_names[{{ level_stats.month_finds.4 }}]],
+		labels: {{level_stats.month_finds}},
 		series: [
-			[{{ level_stats.month_finds_count.0 }}, {{ level_stats.month_finds_count.1 }}, {{ level_stats.month_finds_count.2 }}, {{ level_stats.month_finds_count.3 }}, {{ level_stats.month_finds_count.4 }}],
+			{{ level_stats.month_finds_count }},
 		]
 		},{
 			width: '100%',
@@ -83,9 +87,9 @@ var month_names = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep"
 		});
 
 	new Chartist.Line('#week_chart', {
-		labels: ['{{level_stats.day_finds.0}} '+month_names[{{ level_stats.month_finds.4 }}], '{{level_stats.day_finds.1}} '+month_names[{{ level_stats.month_finds.4 }}], '{{level_stats.day_finds.2}} '+month_names[{{ level_stats.month_finds.4 }}], '{{level_stats.day_finds.3}} '+month_names[{{ level_stats.month_finds.4 }}], '{{level_stats.day_finds.4}} '+month_names[{{ level_stats.month_finds.4 }}]],
+		labels: {{level_stats.day_finds}},
 		series: [
-			[{{ level_stats.day_finds_count.0 }}, {{ level_stats.day_finds_count.1 }}, {{ level_stats.day_finds_count.2 }}, {{ level_stats.day_finds_count.3 }}, {{ level_stats.day_finds_count.4 }}],
+			{{ level_stats.day_finds_count }},
 		]
 		},{
 			width: '100%',
@@ -117,6 +121,8 @@ var month_names = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep"
 			return Math.round(value/{{ level_stats.player_count }}*100) + '%';
 		}
 	})
+
+	{% endautoescape %}
 	</script>
 
 	<style type="text/css">

@@ -230,18 +230,21 @@ def ctfLevelStats(request, level):
 	month_finds_count = []
 	day_finds = []
 	day_finds_count = []
+	month_names = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-
-	'''NOTE!: must install pytz if using sqlite.. need to test with postgres'''
+	'''NOTE	!: must install pytz if using sqlite.. need to test with postgres'''
 
 	for x in range(4,-1,-1):
-		month_finds.append(now.month-x)
+		month_finds.append(month_names[now.month-x-1])
 		month_finds_count.append(FlagFind.objects.filter(flag__in = level_flags).filter(found_on__month = now.month-x).count())
-		day_finds.append(now.day-x)
+		day_finds.append(str(now.day-x)+' '+month_names[now.month-1])
 		day_finds_count.append(FlagFind.objects.filter(flag__in = level_flags).filter(found_on__day = now.day-x).count())
 
 	print (month_finds)
 	print (month_finds_count)
+	print (day_finds)
+	print (day_finds_count)
+
 	level_stats = {
 					"level":level,
 					"player_count":player_count,
