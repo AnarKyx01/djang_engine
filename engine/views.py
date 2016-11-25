@@ -3,6 +3,7 @@ from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.views import generic
+import datetime
 from django.utils import timezone
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
@@ -58,8 +59,6 @@ def quizLevel(request, level):
 		questions = levelObj.getUnanswered(request.user.player)
 		progress = levelObj.getProgressPercent(request.user.player)
 		solved = request.user.player.getQuestions(levelObj)
-		print (solved)
-		print (questions)
 		return render(request, 'engine/quiz_level.html', { 'questions':questions, 'solved':solved, 'level':levelObj, 'progress':progress })
 	else:
 		messages.warning(request, 'nooope')
@@ -225,23 +224,44 @@ def ctfLevelStats(request, level):
 	else:
 		first_find = "none"
 		most_recent_find = "none"
+	
+	now = datetime.datetime.now()
+	month_finds = []
+	month_finds_count = []
+	day_finds = []
+	day_finds_count = []
 
+
+	'''NOTE!: must install pytz if using sqlite.. need to test with postgres'''
+
+	for x in range(4,-1,-1):
+		month_finds.append(now.month-x)
+		month_finds_count.append(FlagFind.objects.filter(flag__in = level_flags).filter(found_on__month = now.month-x).count())
+		day_finds.append(now.day-x)
+		day_finds_count.append(FlagFind.objects.filter(flag__in = level_flags).filter(found_on__day = now.day-x).count())
+
+	print (month_finds)
+	print (month_finds_count)
 	level_stats = {
 					"level":level,
 					"player_count":player_count,
 					"level_player_count":level_player_count,
-					"level_player_percent":level_player_percent,
+					#"level_player_percent":level_player_percent,
 					"players_completed":players_completed,
-					"player_completed_percent":player_completed_percent,
+					#"player_completed_percent":player_completed_percent,
 					"first_find":first_find,
 					"most_recent_find":most_recent_find,
+					"month_finds":month_finds,
+					"month_finds_count":month_finds_count,
+					"day_finds":day_finds,
+					"day_finds_count":day_finds_count
+
 				}
 
 	level_flag_find_count = []
 	level_flag_find_percent = []
 	for flag in level_flags:
 		level_flag_find_count.append(FlagFind.objects.filter(flag = flag).count())
-		print (level_player_count)
 		if level_player_count != 0:
 			level_flag_find_percent.append((level_flag_find_count[-1]/float(level_player_count))*100)
 		else:

@@ -11,21 +11,23 @@
 			<div class="panel-body">
 				<div class="row text-center">
 					<div class="col-md-4">
-						<p>{{ level_stats.level_player_count }} Players have reached this level</p>
-					</div>
-					<div class="col-md-8">
-						<div class="progress">
-							<div class="progress-bar progress-bar" style="width: {{ level_stats.level_player_percent }}%">{{ level_stats.level_player_count }}/{{ level_stats.player_count }} Players</div>
+						<div class="row">
+							<p>{{ level_stats.level_player_count }} or {{ level_stats.player_count }} players have reached this level</p>
+							<div class="ct-chart ct-perfect-forth" id="reached_donut_chart"></div>
+						</div>
+						<div class="row">
+							<p>{{ level_stats.players_completed }} ot {{ level_stats.level_player_count }} players have completed this level</p>
+							<div class="ct-chart ct-perfect-forth" id="completed_donut_chart"></div>
 						</div>
 					</div>
-				</div>
-				<div class="row text-center">
-					<div class="col-md-4">
-						<p>{{ level_stats.players_completed }} Players have completed this level</p>
-					</div>
 					<div class="col-md-8">
-						<div class="progress">
-							<div class="progress-bar progress-bar" style="width: {{ level_stats.player_completed_percent }}%">{{ level_stats.players_completed }}/{{ level_stats.player_count }} Players</div>
+						<div class="row">
+							<p>Monthly Finds</p>
+							<div class="ct-chart ct-perfect-forth" id="monthly_chart"></div>
+						</div>
+						<div class="row">
+							<p>Weekley Finds</p>
+							<div class="ct-chart ct-perfect-forth" id="week_chart"></div>
 						</div>
 					</div>
 				</div>
@@ -67,4 +69,63 @@
 		</div>
 	</div>
 </div>
+<script>
+var month_names = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+	new Chartist.Bar('#monthly_chart', {
+		labels: [month_names[{{ level_stats.month_finds.0 }}], month_names[{{ level_stats.month_finds.1 }}], month_names[{{ level_stats.month_finds.2 }}], month_names[{{ level_stats.month_finds.3 }}], month_names[{{ level_stats.month_finds.4 }}]],
+		series: [
+			[{{ level_stats.month_finds_count.0 }}, {{ level_stats.month_finds_count.1 }}, {{ level_stats.month_finds_count.2 }}, {{ level_stats.month_finds_count.3 }}, {{ level_stats.month_finds_count.4 }}],
+		]
+		},{
+			width: '100%',
+			height: '100px'
+		});
+
+	new Chartist.Line('#week_chart', {
+		labels: ['{{level_stats.day_finds.0}} '+month_names[{{ level_stats.month_finds.4 }}], '{{level_stats.day_finds.1}} '+month_names[{{ level_stats.month_finds.4 }}], '{{level_stats.day_finds.2}} '+month_names[{{ level_stats.month_finds.4 }}], '{{level_stats.day_finds.3}} '+month_names[{{ level_stats.month_finds.4 }}], '{{level_stats.day_finds.4}} '+month_names[{{ level_stats.month_finds.4 }}]],
+		series: [
+			[{{ level_stats.day_finds_count.0 }}, {{ level_stats.day_finds_count.1 }}, {{ level_stats.day_finds_count.2 }}, {{ level_stats.day_finds_count.3 }}, {{ level_stats.day_finds_count.4 }}],
+		]
+		},{
+			width: '100%',
+			height: '100px'
+		});
+	new Chartist.Pie('#completed_donut_chart', {
+		series: [1]
+	}, {
+		donut: true,
+		donutWidth: 20,
+		width: '100px',
+		height: '100px',
+		startAngle: 270,
+		total: {{ level_stats.level_player_count }},
+		labelInterpolationFnc: function(value) {
+			return Math.round(value/{{ level_stats.level_player_count }}*100) + '%';
+		}
+	})
+	new Chartist.Pie('#reached_donut_chart', {
+		series: [{{ level_stats.level_player_count }}]
+	}, {
+		donut: true,
+		donutWidth: 20,
+		width: '100px',
+		height: '100px',
+		startAngle: 270,
+		total: {{ level_stats.player_count }},
+		labelInterpolationFnc: function(value) {
+			return Math.round(value/{{ level_stats.player_count }}*100) + '%';
+		}
+	})
+	</script>
+
+	<style type="text/css">
+	#completed_donut_chart .ct-series-a .ct-slice-donut{
+		stroke: #dda458;
+	}
+
+	#reached_donut_chart .ct-series-a .ct-slice-donut{
+		stroke: #59922b;
+	}
+	</style>
 {% endblock %}
