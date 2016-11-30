@@ -297,7 +297,32 @@ def ctfStatsChart(request, level):
 										found_on__year__lte=end[0],
 										found_on__month__lte=end[1]))
 	elif 'date' in request.POST:
-		date =  request.POST['date']
+		date = datetime.datetime.strptime(request.POST['date'], '%Y-%m-%d')
+		print(date)
+		chart_title = "Flags Found On "+str(date.day)+"-"+month_names[date.month-1]+"-"+str(date.year)
+		for i in range (24):
+			date = date + datetime.timedelta(hours=1)
+			finds.append(date.strftime("%H%M"))
+			if i != 23:
+				finds_count.append(level_flag_finds.filter(found_on__day = date.day, 
+								found_on__month = date.month, 
+								found_on__year = date.year,
+								found_on__hour__gte = date.hour, 
+								found_on__hour__lt = date.hour+1).count())
+			else:
+				finds_count.append(level_flag_finds.filter(found_on__day = date.day, 
+								found_on__month = date.month, 
+								found_on__year = date.year,
+								found_on__hour__gte = date.hour).count())
+		width = 50*24
+
+		level_chart = {
+			'label':finds,
+			'value':finds_count,
+			'width':width,
+			'title': chart_title
+		}
+		return render(request, 'engine/line_chart.html', { 'level_chart':level_chart }) 
 	elif 'start_date' in request.POST and 'end_date' in request.POST:
 		start = request.POST['start_date']
 		end = request.POST['end_date']
@@ -307,6 +332,7 @@ def ctfStatsChart(request, level):
 			end = tmp
 		start_obj = datetime.datetime.strptime(start, '%Y-%m-%d')
 		end_obj = datetime.datetime.strptime(end, '%Y-%m-%d')
+		chart_title = "Flags Found Between "+str(start_obj.day)+"-"+month_names[start_obj.month-1]+"-"+str(start_obj.year)+" and "+str(end_obj.day)+"-"+month_names[end_obj.month-1]+"-"+str(end_obj.year)
 		delta = end_obj - start_obj
 		if delta.days > 12:
 			width = 50*(delta.days+1)
@@ -315,12 +341,14 @@ def ctfStatsChart(request, level):
 		for i in range(delta.days+1):
 			tmp_date = start_obj + datetime.timedelta(days=i)
 			finds.append(str(tmp_date.day)+' '+month_names[tmp_date.month-1])
-			finds_count.append(level_flag_finds.filter(found_on__day = tmp_date.day).count())
+			finds_count.append(level_flag_finds.filter(found_on__day = tmp_date.day, found_on__month = tmp_date.month).count())
 
+		print (chart_title)
 		level_chart = {
 			'label':finds,
 			'value':finds_count,
-			'width':width
+			'width':width,
+			'title':chart_title
 		}
 		return render(request, 'engine/line_chart.html', { 'level_chart':level_chart }) 
 	else:
