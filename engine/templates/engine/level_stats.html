@@ -21,14 +21,102 @@
 						</div>
 					</div>
 					<div class="col-md-8">
-						<div class="row">
+						<div class="row text-left" id="chart_options">
+							<div class="col-md-4">
+								<div class="input-group input-group-sm">
+									<span class="input-group-addon">Chart Filter</span>
+									<select class="form-control" id="data_range">
+										<option value="month">Month</option>
+										<option value="month_range">Month Range</option>
+										<option value="date_range">Date Range</option>
+										<option value="date">Date</option>
+									</select>
+								</div>
+							</div>
+							<div id="month_input" class="col-md-8 graph_input">
+								<form class="form-inline" method="post" action="{% url 'engine:ctfStatsChart' level_stats.level.number %}">
+									{% csrf_token %}
+								    <fieldset>
+								        <div class="input-group input-group-sm col-md-5">
+								            <span class="input-group-addon">Month</span>
+								            <input class="form-control datepicker-month" id="month" placeholder="YYYY-MM" maxlength="7" name="month" type="date" required />
+								        </div>
+								        <input class="btn btn-primary btn-sm" type="submit" value="view"/>
+								    </fieldset>
+							    </form>
+							</div>
+							<div id="month_range_input">
+								<form class="form-inline" method="post" action="{% url 'engine:ctfStatsChart' level_stats.level.number %}">
+									{% csrf_token %}
+								    <fieldset>
+								        <div class="input-group input-group-sm col-md-5">
+								            <span class="input-group-addon">Start Month</span>
+											<input class="form-control datepicker-month" id="start_month" placeholder="YYYY-MM" maxlength="7" name="start_month" type="date" required ></input>
+										</div>
+								        <div class="input-group input-group-sm col-md-5">
+								            <span class="input-group-addon">End Month</span>
+											<input class="form-control datepicker-month" id="end_month" placeholder="YYYY-MM" maxlength="7" name="end_month" type="date" required ></input>
+								        </div>
+								        <input class="btn btn-primary btn-sm" type="submit" value="view" />
+								    </fieldset>
+							    </form>
+							</div>
+							<div id="date_input">
+								<form class="form-inline" method="post" action="{% url 'engine:ctfStatsChart' level_stats.level.number %}">
+									{% csrf_token %}
+								    <fieldset>
+								        <div class="input-group input-group-sm col-md-5">
+								            <span class="input-group-addon">Date</span>
+								            <input class="form-control datepicker" id="date" placeholder="YYYY-MM-DD" maxlength="10" name="date" type="date" required />
+								        </div>
+								        <input class="btn btn-primary btn-sm" type="submit" value="view" />
+								    </fieldset>
+							    </form>
+							</div>
+
+							<div id="date_range_input">
+								<form class="form-inline" method="post" action="{% url 'engine:ctfStatsChart' level_stats.level.number %}">
+									{% csrf_token %}
+								    <fieldset>
+								        <div class="input-group input-group-sm col-md-5">
+								            <span class="input-group-addon">Start Date</span>
+											<input class="form-control datepicker" id="start_date" placeholder="YYYY-MM-DD" maxlength="10" name="start_date" type="date" required />
+										</div>
+								        <div class="input-group input-group-sm col-md-5">
+								            <span class="input-group-addon">End Date</span>
+											<input class="form-control datepicker" id="end_date" placeholder="YYYY-MM-DD" maxlength="10" name="end_date" type="date" required />
+											</input>
+								        </div>
+								        <input class="btn btn-primary btn-sm" type="submit" value="view" />
+								    </fieldset>
+							    </form>
+							</div>
+						</div>
+						<div class="row" id="gen_chart">
 							<p>Monthly Finds</p>
 							<div class="ct-chart ct-perfect-forth" id="monthly_chart"></div>
+							<script>
+							{% autoescape off %}
+								new Chartist.Line('#monthly_chart', {
+									labels: {{level_stats.month_finds}},
+									series: [
+										{{ level_stats.month_finds_count }},
+									]
+									},{
+										width: '100%',
+										height: '200px',
+										plugins:[
+											Chartist.plugins.tooltip()
+										]
+									});
+							{% endautoescape %}
+							</script>
+
 						</div>
-						<div class="row">
+						<!--<div class="row">
 							<p>Weekley Finds</p>
 							<div class="ct-chart ct-perfect-forth" id="week_chart"></div>
-						</div>
+						</div>-->
 					</div>
 				</div>
 			</div>
@@ -71,27 +159,8 @@
 </div>
 <script>
 {% autoescape off %}
-	new Chartist.Bar('#monthly_chart', {
-		labels: {{level_stats.month_finds}},
-		series: [
-			{{ level_stats.month_finds_count }},
-		]
-		},{
-			width: '100%',
-			height: '100px'
-		});
-
-	new Chartist.Line('#week_chart', {
-		labels: {{level_stats.day_finds}},
-		series: [
-			{{ level_stats.day_finds_count }},
-		]
-		},{
-			width: '100%',
-			height: '100px'
-		});
 	new Chartist.Pie('#completed_donut_chart', {
-		series: [1]
+		series: [{{ level_stats.players_completed }}]
 	}, {
 		donut: true,
 		donutWidth: 20,
@@ -116,6 +185,19 @@
 			return Math.round(value/{{ level_stats.player_count }}*100) + '%';
 		}
 	})
+	$('form').on('submit', function(event){
+			event.preventDefault();
+			$.post($( this ).attr('action'),
+					$(this).serialize(),
+					function( data ){
+						$('#gen_chart').empty();
+						$('#gen_chart').append(data);
+						
+			});
+			//console.log( $( this ).serialize() );
+			//alert( $( this ).attr('action') );
+			//$.post($( this ).)
+		})
 
 	{% endautoescape %}
 	</script>
@@ -129,4 +211,5 @@
 		stroke: #59922b;
 	}
 	</style>
+
 {% endblock %}

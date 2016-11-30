@@ -1,0 +1,20 @@
+<div style="overflow-x:scroll;">
+	<div>Finds</div>
+	<div class="ct-chart ct-perfect-forth" id="chart"></div>
+</div>
+<script>
+{% autoescape off %}
+	new Chartist.Line('#chart', {
+		labels: {{level_chart.label}},
+	series: [
+		{{ level_chart.value }},
+	]
+		}, {
+			width: '{{ level_chart.width }}px',
+			height: '250px',
+			plugins:[
+				Chartist.plugins.tooltip()
+			]
+		});
+{% endautoescape %}
+</script>
