@@ -305,8 +305,6 @@ def ctfStatsChart(request, level):
 			tmp = start
 			start = end
 			end = tmp
-		#range_finds = level_flag_finds.filter(found_on__range=[start, end])
-		#unique_days = range_finds.datetimes('found_on', 'day')
 		start_obj = datetime.datetime.strptime(start, '%Y-%m-%d')
 		end_obj = datetime.datetime.strptime(end, '%Y-%m-%d')
 		delta = end_obj - start_obj
@@ -317,7 +315,7 @@ def ctfStatsChart(request, level):
 		for i in range(delta.days+1):
 			tmp_date = start_obj + datetime.timedelta(days=i)
 			finds.append(str(tmp_date.day)+' '+month_names[tmp_date.month-1])
-			finds_count.append(FlagFind.objects.filter(flag__in = level_flags).filter(found_on__day = tmp_date.day).count())
+			finds_count.append(level_flag_finds.filter(found_on__day = tmp_date.day).count())
 
 		level_chart = {
 			'label':finds,

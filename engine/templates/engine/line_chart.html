@@ -1,4 +1,4 @@
-<div style="overflow-x:scroll;">
+<div class="well well-sm col-md-11" style="overflow-x:scroll;">
 	<div>Finds</div>
 	<div class="ct-chart ct-perfect-forth" id="chart"></div>
 </div>
@@ -12,9 +12,6 @@
 		}, {
 			width: '{{ level_chart.width }}px',
 			height: '250px',
-			plugins:[
-				Chartist.plugins.tooltip()
-			]
 		});
 {% endautoescape %}
 </script>
