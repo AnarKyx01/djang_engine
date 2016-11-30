@@ -1,0 +1,22 @@
+<div class="well well-sm col-md-11 chart-div" style="overflow-x:scroll;">
+	<div class="chart-header col-md-7 text-center">{{ level_chart.title }}</div>
+	<div class="ct-chart ct-perfect-forth" id="chart"></div>
+</div>
+<script>
+{% autoescape off %}
+	new Chartist.Line('#chart', {
+		labels: {{level_chart.label}},
+	series: [
+		{{ level_chart.value }},
+	]
+		}, {
+			width: '{{ level_chart.width }}px',
+			height: '250px',
+			plugins: [
+				Chartist.plugins.ctPointLabels({
+					textAnchor: 'middle'
+				})
+			]
+		});
+{% endautoescape %}
+</script>

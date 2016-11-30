@@ -11,22 +11,118 @@
 			<div class="panel-body">
 				<div class="row text-center">
 					<div class="col-md-4">
-						<p>{{ level_stats.level_player_count }} Players have reached this level</p>
-					</div>
-					<div class="col-md-8">
-						<div class="progress">
-							<div class="progress-bar progress-bar" style="width: {{ level_stats.level_player_percent }}%">{{ level_stats.level_player_count }}/{{ level_stats.player_count }} Players</div>
+						<h4>Players</h4>
+						<hr />
+						<div class="row">
+							<p>{{ level_stats.level_player_count }} or {{ level_stats.player_count }} players have reached this level</p>
+							<div class="ct-chart ct-perfect-forth" id="reached_donut_chart"></div>
+						</div>
+						<div class="row">
+							<p>{{ level_stats.players_completed }} ot {{ level_stats.level_player_count }} players have completed this level</p>
+							<div class="ct-chart ct-perfect-forth" id="completed_donut_chart"></div>
 						</div>
 					</div>
-				</div>
-				<div class="row text-center">
-					<div class="col-md-4">
-						<p>{{ level_stats.players_completed }} Players have completed this level</p>
-					</div>
 					<div class="col-md-8">
-						<div class="progress">
-							<div class="progress-bar progress-bar" style="width: {{ level_stats.player_completed_percent }}%">{{ level_stats.players_completed }}/{{ level_stats.player_count }} Players</div>
+						<div class="row text-left" id="chart_options">
+							<div class="col-md-4">
+								<div class="input-group input-group-sm">
+									<span class="input-group-addon">Chart Filter</span>
+									<select class="form-control" id="data_range">
+										<option value="month">Month</option>
+										<option value="month_range">Month Range</option>
+										<option value="date_range">Date Range</option>
+										<option value="date">Date</option>
+									</select>
+								</div>
+							</div>
+							<div id="month_input" class="col-md-8 graph_input">
+								<form class="form-inline" method="post" action="{% url 'engine:ctfStatsChart' level_stats.level.number %}">
+									{% csrf_token %}
+								    <fieldset>
+								        <div class="input-group input-group-sm col-md-5">
+								            <span class="input-group-addon">Month</span>
+								            <input class="form-control datepicker-month" id="month" placeholder="YYYY-MM" maxlength="7" name="month" type="date" required />
+								        </div>
+								        <input class="btn btn-primary btn-sm" type="submit" value="view"/>
+								    </fieldset>
+							    </form>
+							</div>
+							<div id="month_range_input">
+								<form class="form-inline" method="post" action="{% url 'engine:ctfStatsChart' level_stats.level.number %}">
+									{% csrf_token %}
+								    <fieldset>
+								        <div class="input-group input-group-sm col-md-5">
+								            <span class="input-group-addon">Start Month</span>
+											<input class="form-control datepicker-month" id="start_month" placeholder="YYYY-MM" maxlength="7" name="start_month" type="date" required ></input>
+										</div>
+								        <div class="input-group input-group-sm col-md-5">
+								            <span class="input-group-addon">End Month</span>
+											<input class="form-control datepicker-month" id="end_month" placeholder="YYYY-MM" maxlength="7" name="end_month" type="date" required ></input>
+								        </div>
+								        <input class="btn btn-primary btn-sm" type="submit" value="view" />
+								    </fieldset>
+							    </form>
+							</div>
+							<div id="date_input">
+								<form class="form-inline" method="post" action="{% url 'engine:ctfStatsChart' level_stats.level.number %}">
+									{% csrf_token %}
+								    <fieldset>
+								        <div class="input-group input-group-sm col-md-5">
+								            <span class="input-group-addon">Date</span>
+								            <input class="form-control datepicker" id="date" placeholder="YYYY-MM-DD" maxlength="10" name="date" type="date" required />
+								        </div>
+								        <input class="btn btn-primary btn-sm" type="submit" value="view" />
+								    </fieldset>
+							    </form>
+							</div>
+
+							<div id="date_range_input">
+								<form class="form-inline" method="post" action="{% url 'engine:ctfStatsChart' level_stats.level.number %}">
+									{% csrf_token %}
+								    <fieldset>
+								        <div class="input-group input-group-sm col-md-5">
+								            <span class="input-group-addon">Start Date</span>
+											<input class="form-control datepicker" id="start_date" placeholder="YYYY-MM-DD" maxlength="10" name="start_date" type="date" required />
+										</div>
+								        <div class="input-group input-group-sm col-md-5">
+								            <span class="input-group-addon">End Date</span>
+											<input class="form-control datepicker" id="end_date" placeholder="YYYY-MM-DD" maxlength="10" name="end_date" type="date" required />
+											</input>
+								        </div>
+								        <input class="btn btn-primary btn-sm" type="submit" value="view" />
+								    </fieldset>
+							    </form>
+							</div>
 						</div>
+						<div class="row" id="gen_chart">
+							<div class="well well-sm col-md-11 chart-div" style="overflow-x:scroll;">
+								<div class="chart-header col-md-7 text-center">Month Range Flag Finds</div>
+								<div class="ct-chart ct-perfect-forth" id="chart"></div>
+							</div>
+							<script>
+							{% autoescape off %}
+								new Chartist.Line('#chart', {
+									labels: {{level_stats.month_finds}},
+									series: [
+										{{ level_stats.month_finds_count }},
+									]
+									},{
+										width: '100%',
+										height: '250px',
+										plugins: [
+											Chartist.plugins.ctPointLabels({
+												textAnchor: 'middle'
+											})
+										]
+									});
+							{% endautoescape %}
+							</script>
+
+						</div>
+						<!--<div class="row">
+							<p>Weekley Finds</p>
+							<div class="ct-chart ct-perfect-forth" id="week_chart"></div>
+						</div>-->
 					</div>
 				</div>
 			</div>
@@ -67,4 +163,62 @@
 		</div>
 	</div>
 </div>
+<script>
+{% autoescape off %}
+	new Chartist.Pie('#completed_donut_chart', {
+		series: [{{ level_stats.players_completed }}]
+	}, {
+		donut: true,
+		donutWidth: 20,
+		width: '100px',
+		height: '100px',
+		startAngle: 270,
+		total: {{ level_stats.level_player_count }},
+		labelInterpolationFnc: function(value) {
+			return Math.round(value/{{ level_stats.level_player_count }}*100) + '%';
+		}
+	})
+	new Chartist.Pie('#reached_donut_chart', {
+		series: [{{ level_stats.level_player_count }}]
+	}, {
+		donut: true,
+		donutWidth: 20,
+		width: '100px',
+		height: '100px',
+		startAngle: 270,
+		total: {{ level_stats.player_count }},
+		labelInterpolationFnc: function(value) {
+			return Math.round(value/{{ level_stats.player_count }}*100) + '%';
+		}
+	})
+	$('form').on('submit', function(event){
+			event.preventDefault();
+			$.post($( this ).attr('action'),
+					$(this).serialize(),
+					function( data ){
+						$('#gen_chart').empty();
+						$('#gen_chart').append(data);
+						
+			});
+			//console.log( $( this ).serialize() );
+			//alert( $( this ).attr('action') );
+			//$.post($( this ).)
+		})
+	$("foreignobject").hover(function(){
+		alert("mouse in");
+	});
+
+	{% endautoescape %}
+	</script>
+
+	<style type="text/css">
+	#completed_donut_chart .ct-series-a .ct-slice-donut{
+		stroke: #dda458;
+	}
+
+	#reached_donut_chart .ct-series-a .ct-slice-donut{
+		stroke: #59922b;
+	}
+	</style>
+
 {% endblock %}

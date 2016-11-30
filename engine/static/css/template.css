@@ -14,3 +14,14 @@
 .login{
 	margin-top: 5em;
 }
+
+.chart-header{
+	position: fixed;
+	display: block;
+	font-weight: bold;
+	margin-top: -1.5em;
+}
+
+.chart-div{
+	padding-top: 2em;
+}

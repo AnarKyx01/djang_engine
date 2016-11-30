@@ -3,6 +3,7 @@ from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.views import generic
+import datetime
 from django.utils import timezone
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
@@ -58,8 +59,6 @@ def quizLevel(request, level):
 		questions = levelObj.getUnanswered(request.user.player)
 		progress = levelObj.getProgressPercent(request.user.player)
 		solved = request.user.player.getQuestions(levelObj)
-		print (solved)
-		print (questions)
 		return render(request, 'engine/quiz_level.html', { 'questions':questions, 'solved':solved, 'level':levelObj, 'progress':progress })
 	else:
 		messages.warning(request, 'nooope')
@@ -195,7 +194,7 @@ def playerStats(request):
 	return render(request, 'engine/playerStats.html')
 
 @user_passes_test(is_manager)
-def levelStats(request, level):
+def ctfLevelStats(request, level):
 	player_count = Player.objects.all().count()
 	level = CtfLevel.objects.get(number = level)
 	level_players = Player.objects.filter(ctfLevels__icontains = level.number)
@@ -220,28 +219,52 @@ def levelStats(request, level):
 	level_flags = Flag.objects.filter(level = level)
 	level_flag_finds = FlagFind.objects.filter(flag__in = level_flags)
 	if level_flag_finds:
-		first_find = FlagFind.objects.filter(flag__in = level_flags).reverse()[0]
-		most_recent_find = FlagFind.objects.filter(flag__in = level_flags)[0]
+		first_find = FlagFind.objects.filter(flag__in = level_flags).order_by('found_on')[0]
+		most_recent_find = FlagFind.objects.filter(flag__in = level_flags).order_by('-found_on')[0]
 	else:
 		first_find = "none"
 		most_recent_find = "none"
+	
+	now = datetime.datetime.now()
+	month_finds = []
+	month_finds_count = []
+	day_finds = []
+	day_finds_count = []
+	month_names = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+	'''NOTE	!: must install pytz if using sqlite.. need to test with postgres'''
+
+	for x in range(4,-1,-1):
+		month_finds.append(month_names[now.month-x-1])
+		month_finds_count.append(FlagFind.objects.filter(flag__in = level_flags).filter(found_on__month = now.month-x).count())
+		day_finds.append(str(now.day-x)+' '+month_names[now.month-1])
+		day_finds_count.append(FlagFind.objects.filter(flag__in = level_flags).filter(found_on__day = now.day-x).count())
+
+	print (month_finds)
+	print (month_finds_count)
+	print (day_finds)
+	print (day_finds_count)
 
 	level_stats = {
 					"level":level,
 					"player_count":player_count,
 					"level_player_count":level_player_count,
-					"level_player_percent":level_player_percent,
+					#"level_player_percent":level_player_percent,
 					"players_completed":players_completed,
-					"player_completed_percent":player_completed_percent,
+					#"player_completed_percent":player_completed_percent,
 					"first_find":first_find,
 					"most_recent_find":most_recent_find,
+					"month_finds":month_finds,
+					"month_finds_count":month_finds_count,
+					"day_finds":day_finds,
+					"day_finds_count":day_finds_count
+
 				}
 
 	level_flag_find_count = []
 	level_flag_find_percent = []
 	for flag in level_flags:
 		level_flag_find_count.append(FlagFind.objects.filter(flag = flag).count())
-		print (level_player_count)
 		if level_player_count != 0:
 			level_flag_find_percent.append((level_flag_find_count[-1]/float(level_player_count))*100)
 		else:
@@ -249,3 +272,85 @@ def levelStats(request, level):
 	flag_stats = zip(level_flags, level_flag_find_count, level_flag_find_percent)
 
 	return render(request, 'engine/level_stats.html', { 'level_stats':level_stats, 'flag_stats':flag_stats })
+
+@user_passes_test(is_manager)
+def ctfStatsChart(request, level):
+	month_names = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+	level = CtfLevel.objects.filter(number = level)
+	level_flags = Flag.objects.filter(level = level)
+	level_flag_finds = FlagFind.objects.filter(flag__in = level_flags)
+	finds = []
+	finds_count = []
+	if 'month' in request.POST:
+		print(request.POST['month'])
+	elif 'start_month' in request.POST and 'end_month' in request.POST:
+		start = request.POST['start_month']
+		end = request.POST['end_month']
+		if start > end:
+			tmp = start
+			start = end
+			end = tmp
+		start = start.split('-')
+		end = end.split('-')
+		print (level_flag_finds.filter(found_on__year__gte=start[0],
+										found_on__month__gte=start[1],
+										found_on__year__lte=end[0],
+										found_on__month__lte=end[1]))
+	elif 'date' in request.POST:
+		date = datetime.datetime.strptime(request.POST['date'], '%Y-%m-%d')
+		print(date)
+		chart_title = "Flags Found On "+str(date.day)+"-"+month_names[date.month-1]+"-"+str(date.year)
+		for i in range (24):
+			date = date + datetime.timedelta(hours=1)
+			finds.append(date.strftime("%H%M"))
+			if i != 23:
+				finds_count.append(level_flag_finds.filter(found_on__day = date.day, 
+								found_on__month = date.month, 
+								found_on__year = date.year,
+								found_on__hour__gte = date.hour, 
+								found_on__hour__lt = date.hour+1).count())
+			else:
+				finds_count.append(level_flag_finds.filter(found_on__day = date.day, 
+								found_on__month = date.month, 
+								found_on__year = date.year,
+								found_on__hour__gte = date.hour).count())
+		width = 50*24
+
+		level_chart = {
+			'label':finds,
+			'value':finds_count,
+			'width':width,
+			'title': chart_title
+		}
+		return render(request, 'engine/line_chart.html', { 'level_chart':level_chart }) 
+	elif 'start_date' in request.POST and 'end_date' in request.POST:
+		start = request.POST['start_date']
+		end = request.POST['end_date']
+		if start > end:
+			tmp = start
+			start = end
+			end = tmp
+		start_obj = datetime.datetime.strptime(start, '%Y-%m-%d')
+		end_obj = datetime.datetime.strptime(end, '%Y-%m-%d')
+		chart_title = "Flags Found Between "+str(start_obj.day)+"-"+month_names[start_obj.month-1]+"-"+str(start_obj.year)+" and "+str(end_obj.day)+"-"+month_names[end_obj.month-1]+"-"+str(end_obj.year)
+		delta = end_obj - start_obj
+		if delta.days > 12:
+			width = 50*(delta.days+1)
+		else:
+			width= 600
+		for i in range(delta.days+1):
+			tmp_date = start_obj + datetime.timedelta(days=i)
+			finds.append(str(tmp_date.day)+' '+month_names[tmp_date.month-1])
+			finds_count.append(level_flag_finds.filter(found_on__day = tmp_date.day, found_on__month = tmp_date.month).count())
+
+		print (chart_title)
+		level_chart = {
+			'label':finds,
+			'value':finds_count,
+			'width':width,
+			'title':chart_title
+		}
+		return render(request, 'engine/line_chart.html', { 'level_chart':level_chart }) 
+	else:
+		print("none..")
+		return HttpResponseRedirect(reverse('engine:index'))
