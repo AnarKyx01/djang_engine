@@ -18,7 +18,7 @@
         <tbody>
         {% for quiz_level in quiz_levels %}
           <tr class='clickable-row'>
-          <td><a class="btn btn-sm btn-success" href="{% url 'engine:quizLevel' quiz_level.number %}">Play</a></td>
+          <td><a class="btn btn-sm btn-success" href="{% url 'quiz:level' quiz_level.number %}">Play</a></td>
           <td>{{quiz_level}}</td>
           </tr>
         {% endfor %}

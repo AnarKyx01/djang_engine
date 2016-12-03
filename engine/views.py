@@ -12,9 +12,10 @@ from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 
 
-from .models import Player, QuestionGet, Question, QuizLevel, Manager
+from .models import Player, Manager
 
 from ctf.models import FlagFind, Flag, CtfLevel
+from quiz.models import QuestionGet, Question, QuizLevel
 # Create your views here.
 
 def is_player(user):
@@ -44,18 +45,6 @@ class scoreboardView(generic.ListView):
 		return Player.objects.all().order_by('-score')
 
 @user_passes_test(is_player)
-def quizLevel(request, level):
-	levelObj = QuizLevel.objects.get(number = level)
-	if level in request.user.player.quizLevels:
-		questions = levelObj.getUnanswered(request.user.player)
-		progress = levelObj.getProgressPercent(request.user.player)
-		solved = request.user.player.getQuestions(levelObj)
-		return render(request, 'engine/quiz_level.html', { 'questions':questions, 'solved':solved, 'level':levelObj, 'progress':progress })
-	else:
-		messages.warning(request, 'nooope')
-		return HttpResponseRedirect(reverse('engine:index'))
-
-@user_passes_test(is_player)
 def levels(request):
 	CtfLevels = request.user.player.getCtfLevels()
 	QuizLevels = request.user.player.getQuizLevels()
@@ -74,40 +63,6 @@ def levels(request):
 	else:
 		messages.warning(request, 'You currently do not have access to any levels')
 		return render(request, 'engine/scoreboard.html')
-
-@user_passes_test(is_player)
-def questionSubmit(request, level):
-	levelObj = QuizLevel.objects.get(number = level)
-	questions = levelObj.getUnanswered(request.user.player)
-	progress = levelObj.getProgressPercent(request.user.player)
-	solved = request.user.player.getQuestions(levelObj)
-	progress = levelObj.getProgressPercent(request.user.player)
-
-	try:
-		question_submit = Question.objects.get(id = request.POST['question_id'])
-	except(KeyError, Question.DoesNotExist):
-		messages.warning(request, 'Ahh.. that question doesn\'t exist...')
-		return render(request, 'engine/quiz_level.html', { 'questions':questions, 'solved':solved, 'level':levelObj, 'progress':progress })
-	else:
-		if question_submit.answer != request.POST['answer_submission']:
-			messages.warning(request, 'so close....')
-			return render(request, 'engine/quiz_level.html', { 'questions':questions, 'solved':solved, 'level':levelObj, 'progress':progress })
-		else:
-			try:
-				QuestionGet.objects.filter(question = question_submit).get(player = request.user.player)
-			except(KeyError, QuestionGet.DoesNotExist):
-				QuestionGet(question = question_submit, player = request.user.player).save()
-				u = request.user.player
-				u.score += question_submit.value
-				if levelObj.getProgressPercent(request.user.player) >= 75:
-					if '0' not in request.user.player.getCtfLevels():
-						u.ctfLevels = '0'
-				u.save()
-				messages.success(request, 'you rock, l33t h4x br0')
-				return HttpResponseRedirect(reverse('engine:quizLevel', args=(level)))
-			else:
-				messages.warning(request, 'Again? really....')
-				return render(request, 'engine/quiz_level.html', { 'questions':questions, 'solved':solved, 'level':levelObj, 'progress':progress })
 
 @user_passes_test(is_player)
 def levelUnlock(request):
