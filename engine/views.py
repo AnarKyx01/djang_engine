@@ -359,5 +359,4 @@ def ctfStatsChart(request, level):
 		}
 		return render(request, 'engine/line_chart.html', { 'level_chart':level_chart }) 
 	else:
-		print("none..")
 		return render(request, 'engine/line_chart.html') 
