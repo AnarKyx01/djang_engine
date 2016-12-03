@@ -29,7 +29,7 @@
 									<span class="input-group-addon">Chart Filter</span>
 									<select class="form-control" id="data_range">
 										<option value="month">Month</option>
-										<option value="month_range">Month Range</option>
+										<option value="year">Year</option>
 										<option value="date_range">Date Range</option>
 										<option value="date">Date</option>
 									</select>
@@ -41,24 +41,20 @@
 								    <fieldset>
 								        <div class="input-group input-group-sm col-md-5">
 								            <span class="input-group-addon">Month</span>
-								            <input class="form-control datepicker-month" id="month" placeholder="YYYY-MM" maxlength="7" name="month" type="date" required />
+								            <input class="form-control datepicker-month" id="month" placeholder="YYYY-MM" maxlength="7" name="month" type="date" required readonly="true" />
 								        </div>
 								        <input class="btn btn-primary btn-sm" type="submit" value="view"/>
 								    </fieldset>
 							    </form>
 							</div>
-							<div id="month_range_input">
+							<div id="year_input">
 								<form class="form-inline" method="post" action="{% url 'engine:ctfStatsChart' level_stats.level.number %}">
 									{% csrf_token %}
 								    <fieldset>
 								        <div class="input-group input-group-sm col-md-5">
-								            <span class="input-group-addon">Start Month</span>
-											<input class="form-control datepicker-month" id="start_month" placeholder="YYYY-MM" maxlength="7" name="start_month" type="date" required ></input>
+								            <span class="input-group-addon">Year</span>
+											<input class="form-control datepicker-year" id="syear" placeholder="YYYY" maxlength="7" name="year" type="date" required readonly="true" />
 										</div>
-								        <div class="input-group input-group-sm col-md-5">
-								            <span class="input-group-addon">End Month</span>
-											<input class="form-control datepicker-month" id="end_month" placeholder="YYYY-MM" maxlength="7" name="end_month" type="date" required ></input>
-								        </div>
 								        <input class="btn btn-primary btn-sm" type="submit" value="view" />
 								    </fieldset>
 							    </form>
@@ -69,7 +65,7 @@
 								    <fieldset>
 								        <div class="input-group input-group-sm col-md-5">
 								            <span class="input-group-addon">Date</span>
-								            <input class="form-control datepicker" id="date" placeholder="YYYY-MM-DD" maxlength="10" name="date" type="date" required />
+								            <input class="form-control datepicker" id="date" placeholder="YYYY-MM-DD" maxlength="10" name="date" type="date" required readonly="true" />
 								        </div>
 								        <input class="btn btn-primary btn-sm" type="submit" value="view" />
 								    </fieldset>
@@ -82,11 +78,11 @@
 								    <fieldset>
 								        <div class="input-group input-group-sm col-md-5">
 								            <span class="input-group-addon">Start Date</span>
-											<input class="form-control datepicker" id="start_date" placeholder="YYYY-MM-DD" maxlength="10" name="start_date" type="date" required />
+											<input class="form-control datepicker" id="start_date" placeholder="YYYY-MM-DD" maxlength="10" name="start_date" type="date" required readonly="true" />
 										</div>
 								        <div class="input-group input-group-sm col-md-5">
 								            <span class="input-group-addon">End Date</span>
-											<input class="form-control datepicker" id="end_date" placeholder="YYYY-MM-DD" maxlength="10" name="end_date" type="date" required />
+											<input class="form-control datepicker" id="end_date" placeholder="YYYY-MM-DD" maxlength="10" name="end_date" type="date" required readonly="true" />
 											</input>
 								        </div>
 								        <input class="btn btn-primary btn-sm" type="submit" value="view" />
@@ -177,7 +173,7 @@
 		labelInterpolationFnc: function(value) {
 			return Math.round(value/{{ level_stats.level_player_count }}*100) + '%';
 		}
-	})
+	});
 	new Chartist.Pie('#reached_donut_chart', {
 		series: [{{ level_stats.level_player_count }}]
 	}, {
@@ -190,22 +186,6 @@
 		labelInterpolationFnc: function(value) {
 			return Math.round(value/{{ level_stats.player_count }}*100) + '%';
 		}
-	})
-	$('form').on('submit', function(event){
-			event.preventDefault();
-			$.post($( this ).attr('action'),
-					$(this).serialize(),
-					function( data ){
-						$('#gen_chart').empty();
-						$('#gen_chart').append(data);
-						
-			});
-			//console.log( $( this ).serialize() );
-			//alert( $( this ).attr('action') );
-			//$.post($( this ).)
-		})
-	$("foreignobject").hover(function(){
-		alert("mouse in");
 	});
 
 	{% endautoescape %}
