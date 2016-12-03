@@ -173,7 +173,7 @@
 		labelInterpolationFnc: function(value) {
 			return Math.round(value/{{ level_stats.level_player_count }}*100) + '%';
 		}
-	})
+	});
 	new Chartist.Pie('#reached_donut_chart', {
 		series: [{{ level_stats.level_player_count }}]
 	}, {
@@ -186,22 +186,6 @@
 		labelInterpolationFnc: function(value) {
 			return Math.round(value/{{ level_stats.player_count }}*100) + '%';
 		}
-	})
-	$('form').on('submit', function(event){
-			event.preventDefault();
-			$.post($( this ).attr('action'),
-					$(this).serialize(),
-					function( data ){
-						$('#gen_chart').empty();
-						$('#gen_chart').append(data);
-						
-			});
-			//console.log( $( this ).serialize() );
-			//alert( $( this ).attr('action') );
-			//$.post($( this ).)
-		})
-	$("foreignobject").hover(function(){
-		alert("mouse in");
 	});
 
 	{% endautoescape %}

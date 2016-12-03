@@ -289,25 +289,21 @@ def ctfStatsChart(request, level):
 			'width':month.day*50,
 			'title':chart_title
 		}
-
 		return render(request, 'engine/line_chart.html', { 'level_chart':level_chart }) 
-
 	elif 'year' in request.POST:
 		year = datetime.datetime.strptime(request.POST['year'] + "-01-01", '%Y-%m-%d')
 		chart_title = "Flags Found in the Year "+str(year.year)
 		for i in range(1, 13):
-			finds.append(month_names[i+1])
+			finds.append(month_names[i-1])
 			finds_count.append(level_flag_finds.filter(found_on__month = i,
-															found_on__year = year.year).count())
+														found_on__year = year.year).count())
 		level_chart = {
 			'label':finds,
 			'value':finds_count,
-			'width':500,
+			'width':550,
 			'title':chart_title
 		}
-
 		return render(request, 'engine/line_chart.html', { 'level_chart':level_chart }) 
-
 	elif 'date' in request.POST:
 		date = datetime.datetime.strptime(request.POST['date'], '%Y-%m-%d')
 		chart_title = "Flags Found On "+str(date.day)+"-"+month_names[date.month-1]+"-"+str(date.year)
@@ -364,4 +360,4 @@ def ctfStatsChart(request, level):
 		return render(request, 'engine/line_chart.html', { 'level_chart':level_chart }) 
 	else:
 		print("none..")
-		return HttpResponseRedirect(reverse('engine:index'))
+		return render(request, 'engine/line_chart.html') 
