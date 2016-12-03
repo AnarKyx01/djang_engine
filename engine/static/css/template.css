@@ -25,3 +25,7 @@
 .chart-div{
 	padding-top: 2em;
 }
+
+.datepicker{
+	cursor: pointer;
+}

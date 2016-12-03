@@ -8,12 +8,34 @@ $( document ).ready(function(){
 	        onClose: function(dateText, inst) {
 	            var month = $("#ui-datepicker-div .ui-datepicker-month :selected").val();
 	            var year = $("#ui-datepicker-div .ui-datepicker-year :selected").val();
-	            $(this).val($.datepicker.formatDate('yy-mm', new Date(year, month, 1)));
+	            $(this).val($.datepicker.formatDate('yy-mm-dd', new Date(year, parseInt(month)+1, 0)));
 		        }
 	    });
 
 	    $(".datepicker-month").focus(function () {
 	        $(".ui-datepicker-calendar").hide();
+	        $("#ui-datepicker-div").position({
+	            my: "center top",
+	            at: "center bottom",
+	            of: $(this)
+	        });
+	    });
+	});
+		$('.datepicker-year').each(function(){
+		$(this).datepicker( {
+		    changeMonth: false,
+	        changeYear: true,
+	        showButtonPanel: true,
+
+	        onClose: function(dateText, inst) {
+	            var year = $("#ui-datepicker-div .ui-datepicker-year :selected").val();
+	            $(this).val($.datepicker.formatDate('yy', new Date(year, 1)));
+		        }
+	    });
+
+	    $(".datepicker-year").focus(function () {
+	        $(".ui-datepicker-calendar").hide();
+	        $(".ui-datepicker-month").hide()
 	        $("#ui-datepicker-div").position({
 	            my: "center top",
 	            at: "center bottom",
@@ -36,8 +58,8 @@ $( document ).ready(function(){
 		if(str=="month"){
 			$("#month_input").show();
 		}
-		else if(str=="month_range"){
-			$("#month_range_input").show();
+		else if(str=="year"){
+			$("#year_input").show();
 		}
 		else if(str=="date_range"){
 			$("#date_range_input").show();
