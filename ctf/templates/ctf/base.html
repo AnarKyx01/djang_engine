@@ -1,0 +1,92 @@
+{% load static %}
+<html>
+	<head>
+		<title> Engine </title>
+		<link rel="stylesheet" href="{% static 'css/bootstrap-orig.css' %}"></link>
+		<link rel="stylesheet" href="{% static 'css/bootstrap-theme.css' %}"></link>
+		<link rel="stylesheet" href="{% static 'css/template.css' %}"></link>
+		<link rel="stylesheet" href="{% static 'css/chartist.min.css' %}">
+		<link rel="stylesheet" href="{% static 'css/jquery-ui.structure.min.css' %}">
+		<link rel="stylesheet" href="{% static 'css/jquery-ui.min.css' %}">
+		<link rel="stylesheet" href="{% static 'css/jquery-ui.theme.min.css' %}">
+		<script src="{% static 'js/chartist.min.js' %}"></script>
+		<script src="{% static 'js/jquery.min.js' %}" type="text/javascript"></script>
+		<script src="{% static 'js/jquery-ui.min.js' %}"></script>
+		<script src="{% static 'js/bootstrap.min.js' %}" type="text/javascript"></script>
+		<script src="{% static 'js/npm.js' %}" type="text/javascript"></script>
+		<script src="{% static 'js/message.js' %}" type="text/javascript"></script>
+		<script src="{% static 'js/stats.js' %}"></script>
+		<script src="{% static 'js/chartist-plugin-pointlabels.min.js' %}"></script>
+	</head>
+	<body>
+		{% if messages %}
+		<div class="message-container">
+			<div id="messages">
+				{% for message in messages %}
+				{% if message.tags %}
+				<div class="alert {% if message.tags %} alert-{{ message.tags }} {% endif %}">
+				{% else %}
+				<div class="alert">
+				{% endif %}
+					<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+					{{message}}
+				</div>
+				{% endfor %}
+			</div>
+		</div>
+		{% endif %}
+	<nav class="navbar navbar-default navbar-fixed-top">
+		<div class="container">
+			<div class="navbar-header">
+				<a class="navbar-brand" href="#">Engine</a>
+			</div>
+			<div id="navbar" class="navbar-collapse collapse">
+			<ul class="nav navbar-nav">
+				<li><a href="/">Home</a></li>
+				<li><a href="/scoreboard">Scoreboard</a></li>
+			</ul>
+			{% if user.is_authenticated and user.player %}
+			<ul class="nav navbar-nav navbar-right">
+				<li><a href="{% url 'engine:logout' %}">logout</a></li>
+				<li><a href="{% url 'engine:levels'%}">Levels</a></li>
+				<li><a href="./"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> {{ user.player }}</a></li>
+			</ul>
+			{% elif user.is_authenticated and user.manager %}
+			<ul class="nav navbar-nav navbar-right">
+				<li><a href="{% url 'engine:logout' %}">logout</a></li>
+				<li><a href="{% url 'engine:managerConsole'%}">Manager Console</a></li>
+				<li><a href="./"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> {{ user.username }}</a></li>
+			</ul>
+			{% elif user.is_authenticated and user.is_superuser %}
+			<ul class="nav navbar-nav navbar-right">
+				<li><a href="{% url 'engine:logout' %}">logout</a></li>
+				<li><a href="/admin/">Admin Console</a></li>
+				<li><a href="./"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> {{ user.username }}</a></li>
+			</ul>
+			{% else %}
+			<form class="navbar-form navbar-right" method="post" action="{% url 'engine:login' %}">
+        	{% csrf_token %}
+				<div class="form-group">
+					<input class="form-control" id="username" autofocus="" id="id_username" maxlength="54" name="username" type="text" required />
+				</div>
+				<div class="form-group">
+					<input class="form-control" id="id_password" name="password" type="password" required />
+				</div>
+				<input class="btn btn-primary" type="submit" value="login" />
+				<input type="hidden" name="next" value="{{ next }}" />
+			</form>
+			{% endif %}
+			</div><!--/.nav-collapse -->
+		</div>
+	</nav>
+	<div class="page-header">
+	</div>
+	<div class="content container">
+		<div class="row">
+
+				{% block content %}
+				{% endblock %}
+		</div>
+	</div>
+	</body>
+</html>

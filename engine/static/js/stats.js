@@ -68,15 +68,15 @@ $( document ).ready(function(){
 			$("#date_input").show();
 		}
 	}).change();
-	
-	$('form').on('submit', function(event){
+
+	$('form.stats-submit').on('submit', function(event){
 		event.preventDefault();
 		$.post($( this ).attr('action'),
 				$(this).serialize(),
 				function( data ){
 					$('#gen_chart').empty();
 					$('#gen_chart').append(data);
-					
+
 		});
 	});
 });

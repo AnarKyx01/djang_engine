@@ -4,6 +4,8 @@ from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
 from django.core.validators import int_list_validator
+
+from ctf.models import Flag, FlagFind, CtfLevel, FlagAttempt
 # Create your models here.
 
 ''' User Models '''
@@ -104,49 +106,3 @@ class QuestionGet(models.Model):
 
 	def __str__(self):
 		return "%s answered question on %s" % (self.player, self.solved_on)
-
-''' CTF Level Models '''
-
-class CtfLevel(models.Model):
-
-	number = models.IntegerField(default=0, unique=True)
-	name = models.CharField(max_length=50, unique=True)
-	description = models.TextField(default='')
-	unlock_key = models.CharField(max_length=32, unique=True)
-
-	def getFlagCount(self):
-		return Flag.objects.filter(level=self).count()
-
-	def getFlags(self):
-		Flag.objects.filter(level=self)
-
-	def getProgressPercent(self, player):
-		count = self.getFlagCount()
-		if count == 0:
-			return 0
-		player_count = player.getFlags(self).count()
-		return (float(player_count)/count)*100
-
-	def __str__(self):
-		return self.name
-
-class Flag(models.Model):
-
-	description = models.TextField(default='')
-	level = models.ForeignKey(CtfLevel, on_delete=models.CASCADE, null=True)
-	md5 = models.CharField(max_length = 32, unique=True)
-	name = models.CharField(max_length = 25, unique=True)
-	target_ip = models.GenericIPAddressField(protocol = 'IPv4')
-	value = models.IntegerField(default=0)
-
-	def __str__(self):
-		return self.name
-
-class FlagFind(models.Model):
-	flag = models.ForeignKey(Flag)
-	player = models.ForeignKey(Player)
-	found_on = models.DateTimeField(auto_now_add = True, blank = True)
-	notes = models.TextField(default='')
-
-	def __str__(self):
-		return "%s found a flag on %s" % (self.player, self.found_on)

@@ -45,7 +45,7 @@
         <tbody>
         {% for ctf_level in ctf_levels %}
           <tr class='clickable-row'>
-          <td><a class="btn btn-sm btn-success" href="{% url 'engine:ctfLevel' ctf_level.number %}">Play</a></td>
+          <td><a class="btn btn-sm btn-success" href="{% url 'ctf:level' ctf_level.number %}">Play</a></td>
           <td>{{ctf_level}}</td>
           </tr>
         {% endfor %}

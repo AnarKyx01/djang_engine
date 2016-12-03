@@ -36,7 +36,7 @@
 								</div>
 							</div>
 							<div id="month_input" class="col-md-8 graph_input">
-								<form class="form-inline" method="post" action="{% url 'engine:ctfStatsChart' level_stats.level.number %}">
+								< method="post" action="{% url 'engine:ctfStatsChart' level_stats.level.number %}">
 									{% csrf_token %}
 								    <fieldset>
 								        <div class="input-group input-group-sm col-md-5">
@@ -48,7 +48,7 @@
 							    </form>
 							</div>
 							<div id="year_input">
-								<form class="form-inline" method="post" action="{% url 'engine:ctfStatsChart' level_stats.level.number %}">
+								<form class="form-inline" id="stats-submit" method="post" action="{% url 'engine:ctfStatsChart' level_stats.level.number %}">
 									{% csrf_token %}
 								    <fieldset>
 								        <div class="input-group input-group-sm col-md-5">
@@ -60,7 +60,7 @@
 							    </form>
 							</div>
 							<div id="date_input">
-								<form class="form-inline" method="post" action="{% url 'engine:ctfStatsChart' level_stats.level.number %}">
+								<form class="form-inline" id="stats-submit" method="post" action="{% url 'engine:ctfStatsChart' level_stats.level.number %}">
 									{% csrf_token %}
 								    <fieldset>
 								        <div class="input-group input-group-sm col-md-5">
@@ -73,7 +73,7 @@
 							</div>
 
 							<div id="date_range_input">
-								<form class="form-inline" method="post" action="{% url 'engine:ctfStatsChart' level_stats.level.number %}">
+								<form class="form-inline" id="stats-submit" method="post" action="{% url 'engine:ctfStatsChart' level_stats.level.number %}">
 									{% csrf_token %}
 								    <fieldset>
 								        <div class="input-group input-group-sm col-md-5">
