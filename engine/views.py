@@ -5,12 +5,11 @@ from django.urls import reverse
 from django.views import generic
 import datetime
 from django.utils import timezone
-from django.contrib.auth import authenticate, login
-from django.contrib.auth.models import User
+# from django.contrib.auth import authenticate, login
+# from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
-
 
 from .models import Player, Manager
 
@@ -19,98 +18,113 @@ from quiz.models import QuestionGet, Question, QuizLevel
 # Create your views here.
 
 def is_player(user):
-	try:
-		return user.player is not None
-	except ObjectDoesNotExist:
-		return False
+    try:
+        return user.player is not None
+    except ObjectDoesNotExist:
+        return False
+
 
 def is_manager(user):
-	try:
-		return user.manager is not None
-	except ObjectDoesNotExist:
-		return False
+    try:
+        return user.manager is not None
+    except ObjectDoesNotExist:
+        return False
+
 
 class indexView(generic.ListView):
-	template_name='engine/index.html'
-	context_object_name = 'latest_finds_list'
+    template_name = 'engine/index.html'
+    context_object_name = 'latest_finds_list'
 
-	def get_queryset(self):
-		return FlagFind.objects.filter(found_on__lte=timezone.now()).order_by('-found_on')[:5]
+    def get_queryset(self):
+        return FlagFind.objects.filter(found_on__lte=timezone.now()).order_by('-found_on')[:5]
+
+def systemsView(request):
+    system_ips = Flag.objects.all().values_list('target_ip', flat=True)
+    system_count = system_ips.count()
+    return render(request, 'engine/systems.html', {'systems': system_ips, 'system_count': system_count  })
+
+
 
 class scoreboardView(generic.ListView):
-	template_name='engine/scoreboard.html'
-	context_object_name = 'player_list'
+    template_name = 'engine/scoreboard.html'
+    context_object_name = 'player_list'
 
-	def get_queryset(self):
-		return Player.objects.all().order_by('-score')
+    def get_queryset(self):
+        return Player.objects.all().order_by('-score')
+
 
 @user_passes_test(is_player)
 def levels(request):
-	CtfLevels = request.user.player.getCtfLevels()
-	QuizLevels = request.user.player.getQuizLevels()
-	CtfLevels_count = len(request.user.player.getCtfLevels())
-	QuizLevels_count = len(request.user.player.getQuizLevels())
-	if CtfLevels_count >= 1 or QuizLevels_count >= 1:
-		if CtfLevels_count >= 1:
-			CtfLevels_query = CtfLevel.objects.filter(number__in=CtfLevels)
-		else:
-			CtfLevels_query = None
-		if QuizLevels_count >= 1:
-			Quizlevels_query = QuizLevel.objects.filter(number__in=QuizLevels)
-		else:
-			Quizlevels_query = None
-		return render(request, 'engine/levels.html', { 'quiz_levels':Quizlevels_query, 'ctf_levels':CtfLevels_query})
-	else:
-		messages.warning(request, 'You currently do not have access to any levels')
-		return render(request, 'engine/scoreboard.html')
+    CtfLevels = request.user.player.getCtfLevels()
+    QuizLevels = request.user.player.getQuizLevels()
+    CtfLevels_count = len(request.user.player.getCtfLevels())
+    QuizLevels_count = len(request.user.player.getQuizLevels())
+    if CtfLevels_count >= 1 or QuizLevels_count >= 1:
+        if CtfLevels_count >= 1:
+            CtfLevels_query = CtfLevel.objects.filter(number__in=CtfLevels)
+        else:
+            CtfLevels_query = None
+        if QuizLevels_count >= 1:
+            Quizlevels_query = QuizLevel.objects.filter(number__in=QuizLevels)
+        else:
+            Quizlevels_query = None
+        return render(request, 'engine/levels.html', {'quiz_levels': Quizlevels_query, 'ctf_levels': CtfLevels_query})
+    else:
+        messages.warning(request, 'You currently do not have access to any levels')
+        return render(request, 'engine/scoreboard.html')
+
 
 @user_passes_test(is_player)
 def levelUnlock(request):
-	if request.method == "POST":
-		if request.POST['key'] == '':
-			messages.warning(request, 'no key, bro... really?')
-			return render(request, 'engine/unlock.html')
-		try:
-			unlocked = Level.objects.get(unlock_key = request.POST['key'])
-		except(KeyError, Level.DoesNotExist):
-			messages.warning(request, 'Ah ah ah.. you didn\' say the magic word')
-			return render(request, 'engine/unlock.html')
-		else:
-			player = request.user.player
-			if str(unlocked.number) in player.levels.split(','):
-				messages.warning(request, 'you already unlocked that level...')
-				return render(request, 'engine/unlock.html')
-			else:
-				player.levels += ',' + str(unlocked.number)
-				player.save()
-				messages.success(request, 'you rock, l33t h4x br0')
-				return render(request, 'engine/unlock.html')
-	else:
-		return render(request, 'engine/unlock.html')
+    if request.method == "POST":
+        if request.POST['key'] == '':
+            messages.warning(request, 'no key, bro... really?')
+            return render(request, 'engine/unlock.html')
+        try:
+            unlocked = Level.objects.get(unlock_key=request.POST['key'])
+        except(KeyError, Level.DoesNotExist):
+            messages.warning(request, 'Ah ah ah.. you didn\' say the magic word')
+            return render(request, 'engine/unlock.html')
+        else:
+            player = request.user.player
+            if str(unlocked.number) in player.levels.split(','):
+                messages.warning(request, 'you already unlocked that level...')
+                return render(request, 'engine/unlock.html')
+            else:
+                player.levels += ',' + str(unlocked.number)
+                player.save()
+                messages.success(request, 'you rock, l33t h4x br0')
+                return render(request, 'engine/unlock.html')
+    else:
+        return render(request, 'engine/unlock.html')
+
 
 @user_passes_test(is_manager)
 def managerConsole(request):
-	players = Player.objects.all()
-	player_count = players.count()
-	levels = CtfLevel.objects.all()
-	level_count = CtfLevel.objects.all().count()
-	level_players = []
-	level_progress = []
-	player_tmp = Player.objects.all()
+    players = Player.objects.all()
+    player_count = players.count()
+    levels = CtfLevel.objects.all()
+    level_count = CtfLevel.objects.all().count()
+    level_players = []
+    level_progress = []
+    player_tmp = Player.objects.all()
 
-	for i in range(0, level_count, 1):
-		player_tmp = player_tmp.filter(ctfLevels__contains=str(i))
-		level_players.append(player_tmp.count())
-		level_progress.append((float(player_tmp.count())/player_count)*100)
+    for i in range(0, level_count, 1):
+        player_tmp = player_tmp.filter(ctfLevels__contains=str(i))
+        level_players.append(player_tmp.count())
+        level_progress.append((float(player_tmp.count()) / player_count) * 100)
 
-	level_progress = zip(levels, level_players, level_progress)
+    level_progress = zip(levels, level_players, level_progress)
 
-	return render(request, 'engine/manager_console.html', {'level_progress': level_progress, 'level_players':level_players, 'player_count':player_count, 'levels': levels})
+    return render(request, 'engine/manager_console.html',
+                  {'level_progress': level_progress, 'level_players': level_players, 'player_count': player_count,
+                   'levels': levels})
+
 
 @user_passes_test(is_manager)
 def playerStats(request):
+    return render(request, 'engine/playerStats.html')
 
-	return render(request, 'engine/playerStats.html')
 
 @user_passes_test(is_manager)
 def ctfLevelStats(request, level):
