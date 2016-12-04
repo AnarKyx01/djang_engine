@@ -11,9 +11,10 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 
-from .models import Player, FlagFind, Flag, CtfLevel, QuestionGet, Question, QuizLevel, Manager, Systems
+from .models import Player, Manager
 
-
+from ctf.models import FlagFind, Flag, CtfLevel
+from quiz.models import QuestionGet, Question, QuizLevel
 # Create your views here.
 
 def is_player(user):
@@ -53,32 +54,6 @@ class scoreboardView(generic.ListView):
 
 
 @user_passes_test(is_player)
-def ctfLevel(request, level):
-    levelObj = CtfLevel.objects.get(number=level)
-    if level in request.user.player.ctfLevels:
-        flags = Flag.objects.filter(level=levelObj)
-        progress = levelObj.getProgressPercent(request.user.player)
-        return render(request, 'engine/ctf_level.html', {'flags': flags, 'level': levelObj, 'progress': progress})
-    else:
-        messages.warning(request, 'nooope')
-        return HttpResponseRedirect(reverse('engine:index'))
-
-
-@user_passes_test(is_player)
-def quizLevel(request, level):
-    levelObj = QuizLevel.objects.get(number=level)
-    if level in request.user.player.quizLevels:
-        questions = levelObj.getUnanswered(request.user.player)
-        progress = levelObj.getProgressPercent(request.user.player)
-        solved = request.user.player.getQuestions(levelObj)
-        return render(request, 'engine/quiz_level.html',
-                      {'questions': questions, 'solved': solved, 'level': levelObj, 'progress': progress})
-    else:
-        messages.warning(request, 'nooope')
-        return HttpResponseRedirect(reverse('engine:index'))
-
-
-@user_passes_test(is_player)
 def levels(request):
     CtfLevels = request.user.player.getCtfLevels()
     QuizLevels = request.user.player.getQuizLevels()
@@ -97,72 +72,6 @@ def levels(request):
     else:
         messages.warning(request, 'You currently do not have access to any levels')
         return render(request, 'engine/scoreboard.html')
-
-
-@user_passes_test(is_player)
-def flagSubmit(request, level):
-    levelObj = CtfLevel.objects.get(number=level)
-    flags = Flag.objects.filter(level=levelObj)
-    progress = levelObj.getProgressPercent(request.user.player)
-    if request.POST['notes'] == '':
-        messages.warning(request, 'no notes = no points')
-        return render(request, 'engine/ctf_level.html', {'flags': flags, 'level': levelObj, 'progress': progress})
-    try:
-        flag_submit = flags.get(md5=request.POST['flag_submission'])
-    except(KeyError, Flag.DoesNotExist):
-        messages.warning(request, 'Ahh.. nope')
-        return render(request, 'engine/ctf_level.html', {'flags': flags, 'level': levelObj, 'progress': progress})
-    else:
-        try:
-            FlagFind.objects.filter(flag=flag_submit).get(player=request.user.player)
-        except(KeyError, FlagFind.DoesNotExist):
-            FlagFind(flag=flag_submit, notes=request.POST['notes'], player=request.user.player).save()
-            u = request.user.player
-            u.score += flag_submit.value
-            u.save()
-            messages.success(request, 'you rock, l33t h4x br0')
-            return HttpResponseRedirect(reverse('engine:ctfLevel', args=(level)))
-        else:
-            messages.warning(request, 'Again? really....')
-            return render(request, 'engine/ctf_level.html', {'flags': flags, 'level': levelObj, 'progress': progress})
-
-
-@user_passes_test(is_player)
-def questionSubmit(request, level):
-    levelObj = QuizLevel.objects.get(number=level)
-    questions = levelObj.getUnanswered(request.user.player)
-    progress = levelObj.getProgressPercent(request.user.player)
-    solved = request.user.player.getQuestions(levelObj)
-    progress = levelObj.getProgressPercent(request.user.player)
-
-    try:
-        question_submit = Question.objects.get(id=request.POST['question_id'])
-    except(KeyError, Question.DoesNotExist):
-        messages.warning(request, 'Ahh.. that question doesn\'t exist...')
-        return render(request, 'engine/quiz_level.html',
-                      {'questions': questions, 'solved': solved, 'level': levelObj, 'progress': progress})
-    else:
-        if question_submit.answer != request.POST['answer_submission']:
-            messages.warning(request, 'so close....')
-            return render(request, 'engine/quiz_level.html',
-                          {'questions': questions, 'solved': solved, 'level': levelObj, 'progress': progress})
-        else:
-            try:
-                QuestionGet.objects.filter(question=question_submit).get(player=request.user.player)
-            except(KeyError, QuestionGet.DoesNotExist):
-                QuestionGet(question=question_submit, player=request.user.player).save()
-                u = request.user.player
-                u.score += question_submit.value
-                if levelObj.getProgressPercent(request.user.player) >= 75:
-                    if '0' not in request.user.player.getCtfLevels():
-                        u.ctfLevels = '0'
-                u.save()
-                messages.success(request, 'you rock, l33t h4x br0')
-                return HttpResponseRedirect(reverse('engine:quizLevel', args=(level)))
-            else:
-                messages.warning(request, 'Again? really....')
-                return render(request, 'engine/quiz_level.html',
-                              {'questions': questions, 'solved': solved, 'level': levelObj, 'progress': progress})
 
 
 @user_passes_test(is_player)
@@ -248,7 +157,7 @@ def ctfLevelStats(request, level):
 	else:
 		first_find = "none"
 		most_recent_find = "none"
-	
+
 	now = datetime.datetime.now()
 	month_finds = []
 	month_finds_count = []
@@ -313,7 +222,7 @@ def ctfStatsChart(request, level):
 			'width':month.day*50,
 			'title':chart_title
 		}
-		return render(request, 'engine/line_chart.html', { 'level_chart':level_chart }) 
+		return render(request, 'engine/line_chart.html', { 'level_chart':level_chart })
 	elif 'year' in request.POST:
 		year = datetime.datetime.strptime(request.POST['year'] + "-01-01", '%Y-%m-%d')
 		chart_title = "Flags Found in the Year "+str(year.year)
@@ -327,7 +236,7 @@ def ctfStatsChart(request, level):
 			'width':550,
 			'title':chart_title
 		}
-		return render(request, 'engine/line_chart.html', { 'level_chart':level_chart }) 
+		return render(request, 'engine/line_chart.html', { 'level_chart':level_chart })
 	elif 'date' in request.POST:
 		date = datetime.datetime.strptime(request.POST['date'], '%Y-%m-%d')
 		chart_title = "Flags Found On "+str(date.day)+"-"+month_names[date.month-1]+"-"+str(date.year)
@@ -335,14 +244,14 @@ def ctfStatsChart(request, level):
 			date = date + datetime.timedelta(hours=1)
 			finds.append(date.strftime("%H%M"))
 			if i != 23:
-				finds_count.append(level_flag_finds.filter(found_on__day = date.day, 
-								found_on__month = date.month, 
+				finds_count.append(level_flag_finds.filter(found_on__day = date.day,
+								found_on__month = date.month,
 								found_on__year = date.year,
-								found_on__hour__gte = date.hour, 
+								found_on__hour__gte = date.hour,
 								found_on__hour__lt = date.hour+1).count())
 			else:
-				finds_count.append(level_flag_finds.filter(found_on__day = date.day, 
-								found_on__month = date.month, 
+				finds_count.append(level_flag_finds.filter(found_on__day = date.day,
+								found_on__month = date.month,
 								found_on__year = date.year,
 								found_on__hour__gte = date.hour).count())
 		width = 50*24
@@ -353,7 +262,7 @@ def ctfStatsChart(request, level):
 			'width':width,
 			'title': chart_title
 		}
-		return render(request, 'engine/line_chart.html', { 'level_chart':level_chart }) 
+		return render(request, 'engine/line_chart.html', { 'level_chart':level_chart })
 	elif 'start_date' in request.POST and 'end_date' in request.POST:
 		start = request.POST['start_date']
 		end = request.POST['end_date']
@@ -372,8 +281,8 @@ def ctfStatsChart(request, level):
 		for i in range(delta.days+1):
 			tmp_date = start_obj + datetime.timedelta(days=i)
 			finds.append(str(tmp_date.day)+'-'+month_names[tmp_date.month-1]+'-'+str(tmp_date.year))
-			finds_count.append(level_flag_finds.filter(found_on__day = tmp_date.day, 
-														found_on__month = tmp_date.month,														
+			finds_count.append(level_flag_finds.filter(found_on__day = tmp_date.day,
+														found_on__month = tmp_date.month,
 														found_on__year = tmp_date.year).count())
 		level_chart = {
 			'label':finds,
@@ -381,6 +290,6 @@ def ctfStatsChart(request, level):
 			'width':width,
 			'title':chart_title
 		}
-		return render(request, 'engine/line_chart.html', { 'level_chart':level_chart }) 
+		return render(request, 'engine/line_chart.html', { 'level_chart':level_chart })
 	else:
-		return render(request, 'engine/line_chart.html') 
+		return render(request, 'engine/line_chart.html')
