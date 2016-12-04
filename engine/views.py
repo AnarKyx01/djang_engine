@@ -198,7 +198,7 @@ def ctfLevelStats(request, level):
 			player_completed_percent = level_flag_find_percent.append(0)
 	flag_stats = zip(level_flags, level_flag_find_count, level_flag_find_percent)
 
-	return render(request, 'engine/level_stats.html', { 'level_stats':level_stats, 'flag_stats':flag_stats })
+	return render(request, 'engine/ctf_level_stats.html', { 'level_stats':level_stats, 'flag_stats':flag_stats })
 
 @user_passes_test(is_manager)
 def ctfStatsChart(request, level):
