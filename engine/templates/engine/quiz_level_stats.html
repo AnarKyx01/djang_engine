@@ -36,7 +36,7 @@
 								</div>
 							</div>
 							<div id="month_input" class="col-md-8 graph_input">
-								<form class="form-inline stats-submit" method="post" action="{% url 'engine:ctfStatsChart' level_stats.level.number %}">
+								<form class="form-inline" method="post" action="{% url 'engine:ctfStatsChart' level_stats.level.number %}">
 									{% csrf_token %}
 								    <fieldset>
 								        <div class="input-group input-group-sm col-md-5">
@@ -48,7 +48,7 @@
 							    </form>
 							</div>
 							<div id="year_input">
-								<form class="form-inline" class="form-inline stats-submit" method="post" action="{% url 'engine:ctfStatsChart' level_stats.level.number %}">
+								<form class="form-inline" method="post" action="{% url 'engine:ctfStatsChart' level_stats.level.number %}">
 									{% csrf_token %}
 								    <fieldset>
 								        <div class="input-group input-group-sm col-md-5">
@@ -60,7 +60,7 @@
 							    </form>
 							</div>
 							<div id="date_input">
-								<form class="form-inline" class="form-inline stats-submit" method="post" action="{% url 'engine:ctfStatsChart' level_stats.level.number %}">
+								<form class="form-inline" method="post" action="{% url 'engine:ctfStatsChart' level_stats.level.number %}">
 									{% csrf_token %}
 								    <fieldset>
 								        <div class="input-group input-group-sm col-md-5">
@@ -73,7 +73,7 @@
 							</div>
 
 							<div id="date_range_input">
-								<form class="form-inline" class="form-inline stats-submit" method="post" action="{% url 'engine:ctfStatsChart' level_stats.level.number %}">
+								<form class="form-inline" method="post" action="{% url 'engine:ctfStatsChart' level_stats.level.number %}">
 									{% csrf_token %}
 								    <fieldset>
 								        <div class="input-group input-group-sm col-md-5">
@@ -92,15 +92,15 @@
 						</div>
 						<div class="row" id="gen_chart">
 							<div class="well well-sm col-md-11 chart-div" style="overflow-x:scroll;">
-								<div class="chart-header col-md-7 text-center">Month Range Flag Finds</div>
+								<div class="chart-header col-md-7 text-center">Month Range question gets</div>
 								<div class="ct-chart ct-perfect-forth" id="chart"></div>
 							</div>
 							<script>
 							{% autoescape off %}
 								new Chartist.Line('#chart', {
-									labels: {{level_stats.month_finds}},
+									labels: {{level_stats.month_gets}},
 									series: [
-										{{ level_stats.month_finds_count }},
+										{{ level_stats.month_gets_count }},
 									]
 									},{
 										width: '100%',
@@ -116,7 +116,7 @@
 
 						</div>
 						<!--<div class="row">
-							<p>Weekley Finds</p>
+							<p>Weekley gets</p>
 							<div class="ct-chart ct-perfect-forth" id="week_chart"></div>
 						</div>-->
 					</div>
@@ -129,30 +129,30 @@
 	<div class="col-md-12">
 		<div class="panel panel-default">
 			<div class="panel-heading">
-				<h3 class="panel-title">Flag Statistics</h3>
+				<h3 class="panel-title">Question Statistics</h3>
 			</div>
 			<div class="panel-body">
-				{% for flag, flag_find_count, flag_find_percent in flag_stats %}
+				{% for question, question_get_count, question_get_percent in question_stats %}
 				<div class="row text-center">
 					<div class="col-md-3">
-						<p>{{flag}}</p>
+						<p>{{question}}</p>
 					</div>
 					<div class="col-md-3">
-						<p>Found {{ flag_find_count }}</p>
+						<p>Found {{ question_get_count }}</p>
 					</div>
 					<div class="col-md-6">
 						<div class="progress">
-							<div class="progress-bar progress-bar" style="width: {{ flag_find_percent }}%">{{ flag_find_percent }}%</div>
+							<div class="progress-bar progress-bar" style="width: {{ question_get_percent }}%">{{ question_get_percent }}%</div>
 						</div>
 					</div>
 				</div>
 				{% endfor %}
 				<div class="row">
 					<div class="col-md-6">
-						<p>First Flag Find: {{ level_stats.first_find.player }} on {{ level_stats.first_find.found_on | date:"j M Y" }} at {{level_stats.first_find.found_on | date:"Hi"}}</p>
+						<p>First question get: {{ level_stats.first_get.player }} on {{ level_stats.first_get.found_on | date:"j M Y" }} at {{level_stats.first_get.found_on | date:"Hi"}}</p>
 					</div>
 					<div class="col-md-6">
-						<p>Most Recent Flag Find: {{ level_stats.most_recent_find.player }} on {{ level_stats.most_recent_find.found_on | date:"j M Y" }} at {{level_stats.most_recent_find.found_on | date:"Hi"}}</p>
+						<p>Most Recent question get: {{ level_stats.most_recent_get.player }} on {{ level_stats.most_recent_get.found_on | date:"j M Y" }} at {{level_stats.most_recent_get.found_on | date:"Hi"}}</p>
 					</div>
 				</div>
 			</div>
