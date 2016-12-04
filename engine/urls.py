@@ -22,4 +22,5 @@ urlpatterns = [
 	#url(r'^stats/level/$', views.levelStatsList, name='levelStatsList'),
 	url(r'^stats/ctf/(?P<level>[0-9]+)/$', views.ctfLevelStats, name='levelStats'),
 	url(r'^stats/ctf/chart/(?P<level>[0-9])/$', views.ctfStatsChart, name="ctfStatsChart"),
+	url(r'^systems/$', views.systemsView, name='Systems'),
 ]

@@ -5,30 +5,16 @@
 	<div class="col-md-6">
 		<div class="panel panel-default">
 			<div class="panel-heading">
-				<h3 class="panel-title">Statistics</h3>
+				<h3 class="panel-title">Systems [ {{ system_count }} ] </h3>
 			</div>
 			<div class="panel-body">
-				{% for level, level_player_count, level_progress in level_progress %}
+				{% for system in systems %}
 				<div class="row text-center">
 					<div class="col-md-3">
-						<p>{{level.name}}</p>
-					</div>
-					<div class="col-md-9">
-						<div class="progress">
-							<div class="progress-bar progress-bar" style="width: {{ level_progress }}%">{{level_player_count}}/{{player_count}} Players</div>
-						</div>
+						<p>{{ system }}</p>
 					</div>
 				</div>
 				{% endfor %}
-				<div class="row">
-					<div class="col-md-12">
-						<div class="list-group">
-							<a href="../stats/ctf/0" class="list-group-item">Players</a>
-							<a href="" class="list-group-item">Levels</a>
-                            <a href="/systems/" class="list-group-item">Systems</a>
-						</div>
-					</div>
-				</div>
 			</div>
 		</div>
 	</div>
