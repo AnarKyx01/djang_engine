@@ -11,10 +11,9 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 
-from .models import Player, Manager
-
-from ctf.models import FlagFind, Flag, CtfLevel
-from quiz.models import QuestionGet, Question, QuizLevel
+from engine.models.users import Player, Manager
+from engine.models.ctf import CtfLevel, Flag, FlagFind
+from engine.models.quiz import QuizLevel, Question, QuestionGet
 # Create your views here.
 
 def is_player(user):
@@ -198,7 +197,7 @@ def ctfLevelStats(request, level):
 			player_completed_percent = level_flag_find_percent.append(0)
 	flag_stats = zip(level_flags, level_flag_find_count, level_flag_find_percent)
 
-	return render(request, 'engine/ctf_level_stats.html', { 'level_stats':level_stats, 'flag_stats':flag_stats })
+	return render(request, 'engine/level_stats.html', { 'level_stats':level_stats, 'flag_stats':flag_stats })
 
 @user_passes_test(is_manager)
 def ctfStatsChart(request, level):

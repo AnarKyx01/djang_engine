@@ -4,9 +4,6 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import int_list_validator
 
-from ctf.models import Flag, FlagFind, CtfLevel, FlagAttempt
-from quiz.models import Question, QuestionGet, QuizLevel
-
 ''' User Models '''
 
 class Player(models.Model):
@@ -52,17 +49,3 @@ class Manager(models.Model):
 
 	def __str__(self):
 		return self.handle
-
-''' Systems '''
-
-class Systems(models.Model):
-    system = models.OneToOneField(Flag, on_delete=models.CASCADE)
-
-    def getSystemCount(self):
-        return Flag.objects.filter(target_ip=self).count()
-
-    def getSystems(self):
-        return Flag.objects.filter(target_ip=self)
-
-    def __str__(self):
-        return self.system, self.getSystemCount

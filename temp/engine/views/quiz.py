@@ -11,7 +11,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 
-from .models import QuizLevel, Question, QuestionGet
+from engine.models.quiz import QuizLevel, Question, QuestionGet
 
 def is_player(user):
 	try:

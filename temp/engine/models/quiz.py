@@ -1,7 +1,5 @@
 from django.db import models
 
-import engine
-
 ''' Quiz Level Models '''
 
 class QuizLevel(models.Model):

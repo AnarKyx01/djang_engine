@@ -1,6 +1,6 @@
 # djang_engine
 
-This is a quiz/ctf engine to support continuous training, very early stages of development!
+This is a quiz/ctf engine to support continuous training, very early stages of development
 
 ```bash
 ### Django Requirements

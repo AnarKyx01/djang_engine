@@ -11,7 +11,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 
-from .models import CtfLevel, Flag, FlagFind, FlagAttempt
+from engine.models.ctf import CtfLevel, Flag, FlagFind, FlagAttempt
 
 def is_player(user):
 	try:
