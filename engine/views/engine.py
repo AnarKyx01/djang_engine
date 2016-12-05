@@ -11,10 +11,9 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 
-from .models import Player, Manager
-
-from ctf.models import FlagFind, Flag, CtfLevel
-from quiz.models import QuestionGet, Question, QuizLevel
+from engine.models.users import Player, Manager
+from engine.models.ctf import CtfLevel, Flag, FlagFind
+from engine.models.quiz import QuizLevel, Question, QuestionGet
 # Create your views here.
 
 def is_player(user):

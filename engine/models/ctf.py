@@ -1,9 +1,5 @@
 from django.db import models
 
-import engine
-
-# Create your models here.
-
 ''' CTF Level Models '''
 
 class CtfLevel(models.Model):
